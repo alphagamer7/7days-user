@@ -5,7 +5,7 @@
   Created : 10-Sep-2020
   This App Template Source code is licensed as per the
   terms found in the Website https://initappz.com/license
-  Copyright and Good Faith Purchasers © 2020-present initappz.
+  Copyright and Good Faith Purchasers Â© 2020-present initappz.
  -->
 <ion-header>
   <ion-toolbar>
@@ -22,6 +22,7 @@
   <div class="informations">
     <ion-item>
       <ion-label position="stacked"> {{util.getString('LOCATIONS')}} </ion-label>
+      <ion-button slot="end" (click)="selectAddress()"> <ion-icon name="search"></ion-icon> بحث</ion-button>
       <ion-input [(ngModel)]="address"></ion-input>
     </ion-item>
     <ion-item>

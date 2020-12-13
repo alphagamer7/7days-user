@@ -11,7 +11,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Geolocation, GeolocationOptions, Geoposition, PositionError } from '@ionic-native/geolocation/ngx';
 import { NavController } from '@ionic/angular';
 import { UtilService } from 'src/app/services/util.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
 declare var google;
 
@@ -38,7 +38,8 @@ export class AddAddressPage implements OnInit {
     private navCtrl: NavController,
     private api: ApiService,
     public util: UtilService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
 
     this.route.queryParams.subscribe(data => {
@@ -61,6 +62,10 @@ export class AddAddressPage implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  selectAddress(){
+    this.router.navigate(['maps']);
   }
 
   addAddress() {

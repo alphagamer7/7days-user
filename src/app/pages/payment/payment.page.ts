@@ -209,7 +209,7 @@ export class PaymentPage implements OnInit {
   }
 
 
-  async createOrder() {
+  async createOrder(type: string) {
     //////////// new
     //////////// new
 
@@ -233,7 +233,7 @@ export class PaymentPage implements OnInit {
       uid: localStorage.getItem('uid'),
       store_id: storeId.join(),
       date_time: this.cart.datetime === 'today' ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss'),
-      paid_method: 'cod',
+      paid_method: 'type',
       order_to: this.cart.deliveryAt,
       orders: JSON.stringify(this.cart.cart),
       notes: JSON.stringify(notes),

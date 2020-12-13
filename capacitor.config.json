@@ -18,7 +18,7 @@
       "FadeSplashScreenDuration": "300",
       "SplashShowOnlyFirstTime": "false",
       "SplashScreen": "screen",
-      "SplashScreenDelay": "3000",
+      "SplashScreenDelay": "300",
       "loadUrlTimeoutValue": "700000",
       "CordovaWebViewEngine": "CDVWKWebViewEngine",
       "WKWebViewOnly": "true"

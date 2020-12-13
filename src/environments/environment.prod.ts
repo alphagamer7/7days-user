@@ -10,7 +10,7 @@
 export const environment = {
   production: true,
   baseURL: 'http://grocery-api.7days.one/index.php/',
-  mediaURL: 'http://grocery-api.7days.one/index.php/uploads/',
+  mediaURL: 'http://grocery-api.7days.one/uploads/',
   onesignal: {
     appId: '8c233767-495a-4a6e-830c-35e3e3630134',
     googleProjectNumber: '62057288644',
