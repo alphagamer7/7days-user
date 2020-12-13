@@ -1,0 +1,36 @@
+<!-- 
+   Authors : initappz (Rahul Jograna)
+  Website : https://initappz.com/
+  App Name : ionic 5 groceryee app
+  Created : 10-Sep-2020
+  This App Template Source code is licensed as per the
+  terms found in the Website https://initappz.com/license
+  Copyright and Good Faith Purchasers © 2020-present initappz.
+ -->
+<ion-content>
+  <div class="main_content_div">
+
+    <div class="iconDiv">
+      <img src="assets/imgs/icon.png" alt="" class="icon">
+    </div>
+    <div class="form_div">
+      <ion-label class="main_head"> {{util.getString('Sign in')}} </ion-label>
+      <ion-input type="email" [placeholder]="util.getString('Email')" [(ngModel)]="email">
+        <ion-icon name="mail" slot="icon-only"></ion-icon>
+      </ion-input>
+      <ion-input type="password" [placeholder]="util.getString('Password')" [(ngModel)]="password">
+        <ion-icon name="key" slot="icon-only"></ion-icon>
+      </ion-input>
+      <ion-label class="forgot" *ngIf="!loggedIn" (click)="reset()"> {{util.getString('Forgot Password ?')}}
+      </ion-label>
+      <ion-button expand="block" [disabled]="loggedIn" (click)="login()">
+        <span *ngIf="!loggedIn"> {{util.getString('SIGN IN')}} </span>
+        <ion-spinner name="circular" *ngIf="loggedIn"></ion-spinner>
+      </ion-button>
+
+      <ion-label class="lbl" (click)="create()"> {{util.getString("Don't have an account ?")}} <span
+          class="signup_span"> {{util.getString('Sign Up')}} </span>
+      </ion-label>
+    </div>
+  </div>
+</ion-content>

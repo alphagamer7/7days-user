@@ -1,0 +1,48 @@
+<ion-header mode="ios" class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="back()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="selectAddress()">
+        <ion-icon slot="icon-only" name="save"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title> {{'Select address'}} </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="search-container">
+    <ion-toolbar class="search-toolbar">
+      <ion-buttons slot="end" (click)="geolocateMe()" class="geolocation-button" [class.using-geolocation]="map_model.using_geolocation">
+        <!-- <button
+         
+        > -->
+        <ion-icon
+          style="margin-top: 7px; margin-left: 7px; padding: 2px"
+          icon-only
+          (click)="geolocateMe()"
+          class="geolocation-button"
+          [class.using-geolocation]="map_model.using_geolocation"
+          name="locate"
+        ></ion-icon>
+        <!-- </button> -->
+      </ion-buttons>
+      <ion-searchbar
+        class="search-places-bar"
+        [(ngModel)]="map_model.search_query"
+        placeholder="Select address"
+        [(ngModel)]="map_model.search_query"
+        (ionClear)="clearSearch()"
+        (ionInput)="searchPlacesPredictions(map_model.search_query)"
+      ></ion-searchbar>
+    </ion-toolbar>
+    <ion-list [hidden]="map_model.search_places_predictions.length == 0" class="search-options-list">
+      <ion-item *ngFor="let place of map_model.search_places_predictions" tappable (click)="selectSearchResult(place)"> {{ place.description }} </ion-item>
+    </ion-list>
+  </div>
+  <div #map id="map"></div>
+</ion-content>

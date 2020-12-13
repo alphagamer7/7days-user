@@ -1,0 +1,72 @@
+@charset "UTF-8";
+ion-content {
+  background-color: #272822 !important;
+}
+ion-content #map {
+  width: 100%;
+  height: 100%;
+}
+ion-content pre {
+  border-radius: 10px;
+  color: #e6db74;
+}
+
+.search-container .search-toolbar .bar-buttons .geolocation-button {
+  margin-left: 0px;
+  margin-right: -4px;
+}
+
+.geolocation-button {
+  margin-left: -3px;
+}
+.geolocation-button.using-geolocation {
+  color: var(--ion-color-primary);
+}
+
+.map-col {
+  position: relative;
+}
+
+.search-container {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  z-index: 4;
+}
+.search-container .search-toolbar {
+  padding: 0px 10px;
+}
+.search-container .search-toolbar .toolbar-background {
+  border: none;
+  --background: var(--ion-item-background, var(--ion-background-color, #fff));
+}
+.search-container .search-toolbar.transparent-background .toolbar-background {
+  background: transparent;
+  box-shadow: none;
+}
+.search-container .search-toolbar.transparent-background ion-searchbar.search-places-bar .searchbar-input {
+  border-radius: 1.5rem;
+  color: var(--ion-color-secondary);
+  --background-color: --ion-background-color;
+}
+.search-container .search-toolbar.transparent-background .search-results {
+  padding: 10px;
+  padding-top: 0px;
+}
+.search-container .search-toolbar ion-searchbar.search-places-bar {
+  background: transparent;
+  padding: 10px 0px;
+  padding-left: 5px;
+  border: none;
+}
+.search-container .search-toolbar ion-searchbar.search-places-bar .searchbar-input {
+  border-radius: 1.5rem;
+}
+.search-container .search-results {
+  padding: 10px;
+  padding-top: 0px;
+}
+
+ion-searchbar .searchbar-input {
+  border-radius: 2.1rem !important;
+}
