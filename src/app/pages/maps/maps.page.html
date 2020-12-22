@@ -17,7 +17,12 @@
 <ion-content>
   <div class="search-container">
     <ion-toolbar class="search-toolbar">
-      <ion-buttons slot="end" (click)="geolocateMe()" class="geolocation-button" [class.using-geolocation]="map_model.using_geolocation">
+      <ion-buttons
+        slot="end"
+        (click)="geolocateMe()"
+        class="geolocation-button"
+        [class.using-geolocation]="map_model.using_geolocation"
+      >
         <!-- <button
          
         > -->
@@ -40,8 +45,17 @@
         (ionInput)="searchPlacesPredictions(map_model.search_query)"
       ></ion-searchbar>
     </ion-toolbar>
-    <ion-list [hidden]="map_model.search_places_predictions.length == 0" class="search-options-list">
-      <ion-item *ngFor="let place of map_model.search_places_predictions" tappable (click)="selectSearchResult(place)"> {{ place.description }} </ion-item>
+    <ion-list
+      [hidden]="map_model.search_places_predictions.length == 0"
+      class="search-options-list"
+    >
+      <ion-item
+        *ngFor="let place of map_model.search_places_predictions"
+        tappable
+        (click)="selectSearchResult(place)"
+      >
+        {{ place.description }}
+      </ion-item>
     </ion-list>
   </div>
   <div #map id="map"></div>

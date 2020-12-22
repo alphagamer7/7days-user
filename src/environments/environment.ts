@@ -17,14 +17,14 @@ export const environment = {
   mediaURL: 'http://grocery-api.7days.one/uploads/',
   onesignal: {
     appId: '8c233767-495a-4a6e-830c-35e3e3630134',
-    googleProjectNumber: '62057288644',
+    googleProjectNumber: '867995666894',
     restKey: 'NzE1YmEyZjItNThjOS00ZDk2LThiNDktNmJmYzk1ZjQ2ZGQ3',
   },
   general: {
     symbol: '$',
-    code: 'USD'
+    code: 'USD',
   },
-  authToken: '123456'
+  authToken: '123456',
 };
 
 /*

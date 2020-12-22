@@ -5,7 +5,7 @@
   Created : 10-Sep-2020
   This App Template Source code is licensed as per the
   terms found in the Website https://initappz.com/license
-  Copyright and Good Faith Purchasers © 2020-present initappz.
+  Copyright and Good Faith Purchasers Â© 2020-present initappz.
 */
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
@@ -20,7 +20,6 @@ import * as moment from 'moment';
   styleUrls: ['./order-details.page.scss'],
 })
 export class OrderDetailsPage implements OnInit {
-
   id: any;
   loaded: boolean;
   orderDetail: any[] = [];
@@ -68,129 +67,141 @@ export class OrderDetailsPage implements OnInit {
     this.navCtrl.back();
   }
 
-
   getOrder() {
     const param = {
-      id: this.id
+      id: this.id,
     };
-    this.api.post('orders/getById', param).subscribe((data: any) => {
-      console.log(data);
-      this.loaded = true;
-      if (data && data.status === 200 && data.data.length > 0) {
-        const info = data.data[0];
-        console.log(info);
-        this.orderDetail = JSON.parse(info.notes);
-        console.log('driver???? ======>', this.orderDetail);
-        const order = JSON.parse(info.orders);
-        console.log('order=====>>', order);
-        const finalOrder = [];
-        if (info.assignee && info.assignee !== '') {
-          this.assigneeDriver = JSON.parse(info.assignee);
-          console.log('ASSSIGNEE---->>>>', this.assigneeDriver);
-        }
-        const ids = [...new Set(order.map(item => item.store_id))];
-        ids.forEach(element => {
-          const param = {
-            id: element,
-            order: []
-          };
-          finalOrder.push(param);
-        });
-
-        ids.forEach((element, index) => {
-          order.forEach(cart => {
-            console.log('cart->>>???', cart);
-            if (cart.variations && cart.variations !== '' && typeof cart.variations === 'string') {
-              cart.variations = JSON.parse(cart.variations);
-              console.log(cart['variant']);
-              if (cart["variant"] === undefined) {
-                cart['variant'] = 0;
-              }
-            }
-            if (cart.store_id === element) {
-              finalOrder[index].order.push(cart);
-            }
-          })
-        });
-        console.log('final order', finalOrder);
-        this.orders = finalOrder;
-        this.status = JSON.parse(info.status);
-        console.log('order status--------------------', this.status);
-
-        const status = this.status.filter(x => x.status === 'created');
-        if (status.length === this.status.length) {
-          this.canCancle = true;
-        } else {
-          this.canCancle = false;
-        }
-
-        const delivered = this.status.filter(x => x.status === 'delivered');
-        if (delivered.length === this.status.length) {
-          this.isDelivered = true;
-        } else {
-          this.isDelivered = false;
-        }
-
-        // if()
-        this.datetime = moment(info.date_time).format('dddd, MMMM Do YYYY');
-        this.payMethod = info.paid_method === 'cod' ? 'COD' : 'PAID';
-        this.orderAt = info.order_to;
-        this.driverId = info.driver_id;
-        if (this.driverId && this.driverId !== '') {
-          const userinfo = {
-            id: this.driverId
-          };
-          this.api.post('drivers/getDriversData', userinfo).subscribe((data: any) => {
-            console.log('driverid>', data);
-            if (data && data.status === 200 && data.data && data.data.length) {
-              this.driverInfo = data.data;
-              console.log(this.driverInfo);
-            }
-          }, error => {
-            console.log(error);
+    this.api.post('orders/getById', param).subscribe(
+      (data: any) => {
+        console.log(data);
+        this.loaded = true;
+        if (data && data.status === 200 && data.data.length > 0) {
+          const info = data.data[0];
+          console.log(info);
+          this.orderDetail = JSON.parse(info.notes);
+          console.log('driver???? ======>', this.orderDetail);
+          const order = JSON.parse(info.orders);
+          console.log('order=====>>', order);
+          const finalOrder = [];
+          if (info.assignee && info.assignee !== '') {
+            this.assigneeDriver = JSON.parse(info.assignee);
+            console.log('ASSSIGNEE---->>>>', this.assigneeDriver);
+          }
+          const ids = [...new Set(order.map((item) => item.store_id))];
+          ids.forEach((element) => {
+            const param = {
+              id: element,
+              order: [],
+            };
+            finalOrder.push(param);
           });
-        }
 
-        const stores = {
-          id: info.store_id
-        };
-        this.api.post('stores/getStoresData', stores).subscribe((data: any) => {
-          console.log('store=-============>>', data);
-          console.log('store=-============>>', data);
-          if (data && data.status === 200 && data.data.length) {
-            this.stores = data.data;
+          ids.forEach((element, index) => {
+            order.forEach((cart) => {
+              console.log('cart->>>???', cart);
+              if (cart.variations && cart.variations !== '' && typeof cart.variations === 'string') {
+                cart.variations = JSON.parse(cart.variations);
+                console.log(cart['variant']);
+                if (cart['variant'] === undefined) {
+                  cart['variant'] = 0;
+                }
+              }
+              if (cart.store_id === element) {
+                finalOrder[index].order.push(cart);
+              }
+            });
+          });
+          console.log('final order', finalOrder);
+          this.orders = finalOrder;
+          this.status = JSON.parse(info.status);
+          console.log('order status--------------------', this.status);
 
+          const status = this.status.filter((x) => x.status === 'created');
+          if (status.length === this.status.length) {
+            this.canCancle = true;
           } else {
-            this.util.showToast(this.util.getString('No Stores Found'), 'danger', 'bottom');
-            this.back();
+            this.canCancle = false;
           }
-        }, error => {
-          console.log('error', error);
-          this.util.showToast(this.util.getString('Something went wrong'), 'danger', 'bottom');
-        });
-        if (this.orderAt === 'home') {
-          const address = JSON.parse(info.address);
-          console.log('---address', address);
-          if (address && address.address) {
-            this.userLat = address.lat;
-            this.userLng = address.lng;
-            this.address = address.landmark + ' ' + address.house + ' ' + address.address + ' ' + address.pincode;
+
+          const delivered = this.status.filter((x) => x.status === 'delivered');
+          if (delivered.length === this.status.length) {
+            this.isDelivered = true;
+          } else {
+            this.isDelivered = false;
           }
+
+          // if()
+          this.datetime = moment(info.date_time).format('dddd, MMMM Do YYYY');
+          this.payMethod = info.paid_method === 'cod' ? 'Cash' : 'Bank Card';
+          this.orderAt = info.order_to;
+          this.driverId = info.driver_id;
+          if (this.driverId && this.driverId !== '') {
+            const userinfo = {
+              id: this.driverId,
+            };
+            this.api.post('drivers/getDriversData', userinfo).subscribe(
+              (data: any) => {
+                console.log('driverid>', data);
+                if (data && data.status === 200 && data.data && data.data.length) {
+                  this.driverInfo = data.data;
+                  console.log(this.driverInfo);
+                }
+              },
+              (error) => {
+                console.log(error);
+              }
+            );
+          }
+
+          const stores = {
+            id: info.store_id,
+          };
+          this.api.post('stores/getStoresData', stores).subscribe(
+            (data: any) => {
+              console.log('store=-============>>', data);
+              console.log('store=-============>>', data);
+              if (data && data.status === 200 && data.data.length) {
+                this.stores = data.data;
+              } else {
+                this.util.showToast(this.util.getString('No Stores Found'), 'danger', 'bottom');
+                this.back();
+              }
+            },
+            (error) => {
+              console.log('error', error);
+              this.util.showToast(this.util.getString('Something went wrong'), 'danger', 'bottom');
+            }
+          );
+          if (this.orderAt === 'home') {
+            const address = JSON.parse(info.address);
+            console.log('---address', address);
+            if (address && address.address) {
+              this.userLat = address.lat;
+              this.userLng = address.lng;
+              this.address = address.landmark + ' ' + address.house + ' ' + address.address + ' ' + address.pincode;
+            }
+          }
+        } else {
+          this.util.errorToast(this.util.getString('Something went wrong'));
         }
-      } else {
+      },
+      (error) => {
+        console.log(error);
+        this.loaded = true;
         this.util.errorToast(this.util.getString('Something went wrong'));
       }
-    }, error => {
-      console.log(error);
-      this.loaded = true;
-      this.util.errorToast(this.util.getString('Something went wrong'));
-    });
+    );
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  getTranslatedStatus(itemValue) {
+    if (itemValue == 'Order Created') return 'أجل خلق';
+    if (itemValue.startsWith('Order accepted by')) return 'قبول الطلب';
+    if (itemValue.startsWith('Order rejected by')) return 'تم رفض الطلب';
+    if (itemValue.startsWith('Order delivered by')) return 'تم إيصال الطلب';
+    if (itemValue.startsWith('Order ongoing by')) return 'قيد التنفيذ';
   }
-
-
 
   call() {
     if (this.userInfo.mobile) {
@@ -240,21 +251,22 @@ export class OrderDetailsPage implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Confirm Cancel: blah');
-          }
-        }, {
+          },
+        },
+        {
           text: this.util.getString('Yes'),
           handler: () => {
             console.log('Confirm Okay');
             // this.util.setOrders(this.orderData);
             const param: NavigationExtras = {
               queryParams: {
-                id: this.id
-              }
-            }
+                id: this.id,
+              },
+            };
             this.router.navigate(['order-rating'], param);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -270,7 +282,7 @@ export class OrderDetailsPage implements OnInit {
     };
     this.orderDetail.push(newOrderNotes);
 
-    this.status.forEach(element => {
+    this.status.forEach((element) => {
       if (element.status === 'created') {
         element.status = 'cancelled';
       }
@@ -282,54 +294,60 @@ export class OrderDetailsPage implements OnInit {
       notes: JSON.stringify(this.orderDetail),
       status: JSON.stringify(this.status),
     };
-    console.log('---->', this.status)
-    this.api.post('orders/editList', param).subscribe((data: any) => {
-      console.log('order', data);
-      this.util.hide();
-      if (this.orderAt === 'home' && this.driverId !== '0') {
-        this.updateDriver(this.driverId, 'active');
-      }
-      if (data && data.status === 200) {
-        this.sendNotification('cancelled');
-        this.back();
-      } else {
+    console.log('---->', this.status);
+    this.api.post('orders/editList', param).subscribe(
+      (data: any) => {
+        console.log('order', data);
+        this.util.hide();
+        if (this.orderAt === 'home' && this.driverId !== '0') {
+          this.updateDriver(this.driverId, 'active');
+        }
+        if (data && data.status === 200) {
+          this.sendNotification('cancelled');
+          this.back();
+        } else {
+          this.util.errorToast(this.util.getString('Something went wrong'));
+        }
+      },
+      (error) => {
+        console.log(error);
+        this.util.hide();
         this.util.errorToast(this.util.getString('Something went wrong'));
       }
-    }, error => {
-      console.log(error);
-      this.util.hide();
-      this.util.errorToast(this.util.getString('Something went wrong'));
-    });
-
+    );
   }
 
   sendNotification(value) {
     if (this.userInfo && this.userInfo.fcm_token) {
-      this.api.sendNotification(this.util.getString('Your order #') + this.id + ' ' + value, this.util.getString('Order')
-        + ' ' + value, this.userInfo.fcm_token)
-        .subscribe((data: any) => {
+      this.api.sendNotification(this.util.getString('Your order #') + this.id + ' ' + value, this.util.getString('Order') + ' ' + value, this.userInfo.fcm_token).subscribe(
+        (data: any) => {
           console.log('onesignal', data);
-        }, error => {
+        },
+        (error) => {
           console.log('onesignal error', error);
-        });
+        }
+      );
     }
   }
 
   updateDriver(uid, value) {
     const param = {
       id: uid,
-      current: value
+      current: value,
     };
     console.log('param', param);
-    this.api.post('drivers/edit_profile', param).subscribe((data: any) => {
-      console.log(data);
-    }, error => {
-      console.log(error);
-    });
+    this.api.post('drivers/edit_profile', param).subscribe(
+      (data: any) => {
+        console.log(data);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
 
   getStoreName(id) {
-    const item = this.stores.filter(x => x.uid === id);
+    const item = this.stores.filter((x) => x.uid === id);
     if (item && item.length) {
       return item[0].name;
     }
@@ -337,7 +355,7 @@ export class OrderDetailsPage implements OnInit {
   }
 
   getOrderStatus(id) {
-    const item = this.status.filter(x => x.id === id);
+    const item = this.status.filter((x) => x.id === id);
     if (item && item.length) {
       return this.util.getString(item[0].status);
     }
@@ -345,7 +363,7 @@ export class OrderDetailsPage implements OnInit {
   }
 
   getOrderStatusFromDriver(id) {
-    const item = this.assigneeDriver.filter(x => x.driver === id);
+    const item = this.assigneeDriver.filter((x) => x.driver === id);
     if (item && item.length) {
       return this.getOrderStatus(item[0].assignee);
     }
@@ -367,13 +385,13 @@ export class OrderDetailsPage implements OnInit {
           name: 'call',
           type: 'radio',
           label: this.util.getString('Call'),
-          value: 'call'
+          value: 'call',
         },
         {
           name: 'msg',
           type: 'radio',
           label: this.util.getString('Message'),
-          value: 'msg'
+          value: 'msg',
         },
       ],
       buttons: [
@@ -383,8 +401,9 @@ export class OrderDetailsPage implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Confirm Cancel');
-          }
-        }, {
+          },
+        },
+        {
           text: this.util.getString('Ok'),
           handler: (data) => {
             console.log('Confirm Ok', data);
@@ -398,14 +417,14 @@ export class OrderDetailsPage implements OnInit {
                 queryParams: {
                   id: item.uid,
                   name: item.name,
-                  uid: localStorage.getItem('uid')
-                }
+                  uid: localStorage.getItem('uid'),
+                },
               };
               this.router.navigate(['inbox'], param);
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -426,7 +445,7 @@ export class OrderDetailsPage implements OnInit {
           name: 'call',
           type: 'radio',
           label: this.util.getString('Call'),
-          value: 'call'
+          value: 'call',
         },
       ],
       buttons: [
@@ -436,8 +455,9 @@ export class OrderDetailsPage implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Confirm Cancel');
-          }
-        }, {
+          },
+        },
+        {
           text: this.util.getString('Ok'),
           handler: (data) => {
             console.log('Confirm Ok', data);
@@ -448,9 +468,9 @@ export class OrderDetailsPage implements OnInit {
             } else {
               console.log('none');
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -467,10 +487,9 @@ export class OrderDetailsPage implements OnInit {
         orderAt: this.orderAt,
         homeLat: this.userLat ? this.userLat : 'none',
         homeLng: this.userLng ? this.userLng : 'none',
-        orderId: this.id
-      }
+        orderId: this.id,
+      },
     };
     this.router.navigate(['direction'], navData);
-
   }
 }

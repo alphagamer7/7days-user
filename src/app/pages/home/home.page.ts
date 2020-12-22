@@ -21,7 +21,6 @@ import { AlertController } from '@ionic/angular';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-
   slideOpts = {
     slidesPerView: 1.3,
   };
@@ -29,7 +28,7 @@ export class HomePage implements OnInit {
     slidesPerView: 2,
     spaceBetween: 5,
     slideShadows: true,
-  }
+  };
   categories: any[] = [];
   dummyCates: any[] = [];
 
@@ -103,27 +102,28 @@ export class HomePage implements OnInit {
         this.getInit();
       }
     });
-
   }
 
   getPopup() {
-
-    this.api.get('popup').subscribe(async (data: any) => {
-      console.log('popup message', data);
-      if (data && data.status === 200) {
-        const info = data.data[0];
-        const alertCtrl = await this.alertCtrl.create({
-          header: this.util.getString('Message'),
-          message: info.message,
-          mode: 'ios',
-          buttons: [this.util.getString('Cancle'), this.util.getString('Ok')],
-        });
-        localStorage.setItem('pop', 'true');
-        alertCtrl.present();
+    this.api.get('popup').subscribe(
+      async (data: any) => {
+        console.log('popup message', data);
+        if (data && data.status === 200) {
+          const info = data.data[0];
+          const alertCtrl = await this.alertCtrl.create({
+            header: this.util.getString('Message'),
+            message: info.message,
+            mode: 'ios',
+            buttons: [this.util.getString('Cancle'), this.util.getString('Ok')],
+          });
+          localStorage.setItem('pop', 'true');
+          alertCtrl.present();
+        }
+      },
+      (error) => {
+        console.log(error);
       }
-    }, error => {
-      console.log(error);
-    });
+    );
   }
   getInit() {
     this.getCity();
@@ -140,105 +140,146 @@ export class HomePage implements OnInit {
     this.topProducts = [];
     this.products = [];
     const param = {
-      id: localStorage.getItem('city')
-    }
-    this.api.post('stores/getByCity', param).subscribe((stores: any) => {
-      console.log('stores by city', stores);
-      this.stores = [];
-      if (stores && stores.status === 200 && stores.data && stores.data.length) {
-        console.log('city found');
-        this.stores = stores.data;
-
-        this.stores.forEach(async (element) => {
-          element['isOpen'] = await this.isOpen(element.open_time, element.close_time);
-        });
-        console.log('store====>>>', this.stores);
-        this.haveStores = true;
-        this.getCategorys();
-        this.getBanners();
-
-        this.topProducts = [];
-        this.dummyTopProducts = Array(5);
-        this.api.post('products/getTopRated', param).subscribe((data: any) => {
-          console.log('top products', data);
-          this.dummyTopProducts = [];
-          if (data && data.status === 200 && data.data && data.data.length) {
-            data.data.forEach(element => {
-              if (element.variations && element.size === '1' && element.variations !== '') {
-                if (((x) => { try { JSON.parse(x); return true; } catch (e) { return false } })(element.variations)) {
-                  element.variations = JSON.parse(element.variations);
-                  element['variant'] = 0;
-                } else {
-                  element.variations = [];
-                  element['variant'] = 1;
-                }
-              } else {
-                element.variations = [];
-                element['variant'] = 1;
-              }
-              if (this.cart.itemId.includes(element.id)) {
-                const index = this.cart.cart.filter(x => x.id === element.id);
-                element['quantiy'] = index[0].quantiy;
-              } else {
-                element['quantiy'] = 0;
-              }
-              this.topProducts.push(element);
-
-            });
-          }
-        }, error => {
-          console.log(error);
-          this.dummyTopProducts = [];
-        });
-
-        this.api.post('products/getHome', param).subscribe((data: any) => {
-          console.log('home products', data);
-          this.dummyTopProducts = [];
-          if (data && data.status === 200 && data.data && data.data.length) {
-            data.data.forEach(element => {
-              if (element.variations && element.size === '1' && element.variations !== '') {
-                if (((x) => { try { JSON.parse(x); return true; } catch (e) { return false } })(element.variations)) {
-                  element.variations = JSON.parse(element.variations);
-                  element['variant'] = 0;
-                } else {
-                  element.variations = [];
-                  element['variant'] = 1;
-                }
-              } else {
-                element.variations = [];
-                element['variant'] = 1;
-              }
-              if (this.cart.itemId.includes(element.id)) {
-                const index = this.cart.cart.filter(x => x.id === element.id);
-                element['quantiy'] = index[0].quantiy;
-              } else {
-                element['quantiy'] = 0;
-              }
-              this.topProducts.push(element);
-
-            });
-          }
-
-        }, error => {
-          this.dummyTopProducts = [];
-          console.log(error);
-        });
-
-        // this.api.post('products/getProductWithCity', param).subscribe((data: any) => {
-        //   console.log('getProductWithCity', data);
-        //   if (data && data.status === 200 && data.data && data.data.length) {
-        //     this.dummyProducts = data.data;
-        //   } else {
-        //     this.dummyProducts = []
-        //   }
-        // }, error => {
-        //   console.log(error);
-        //   this.dummyProducts = []
-        // });
-      } else {
-        this.haveStores = false;
+      id: localStorage.getItem('city'),
+    };
+    this.api.post('stores/getByCity', param).subscribe(
+      (stores: any) => {
+        console.log('stores by city', stores);
         this.stores = [];
-        console.log('no city found');
+        if (stores && stores.status === 200 && stores.data && stores.data.length) {
+          console.log('city found');
+          this.stores = stores.data;
+
+          this.stores.forEach(async (element) => {
+            element['isOpen'] = await this.isOpen(element.open_time, element.close_time);
+          });
+          console.log('store====>>>', this.stores);
+          this.haveStores = true;
+          this.getCategorys();
+          this.getBanners();
+
+          this.topProducts = [];
+          this.dummyTopProducts = Array(5);
+          this.api.post('products/getTopRated', param).subscribe(
+            (data: any) => {
+              console.log('top products', data);
+              this.dummyTopProducts = [];
+              if (data && data.status === 200 && data.data && data.data.length) {
+                data.data.forEach((element) => {
+                  if (element.variations && element.size === '1' && element.variations !== '') {
+                    if (
+                      ((x) => {
+                        try {
+                          JSON.parse(x);
+                          return true;
+                        } catch (e) {
+                          return false;
+                        }
+                      })(element.variations)
+                    ) {
+                      element.variations = JSON.parse(element.variations);
+                      element['variant'] = 0;
+                    } else {
+                      element.variations = [];
+                      element['variant'] = 1;
+                    }
+                  } else {
+                    element.variations = [];
+                    element['variant'] = 1;
+                  }
+                  if (this.cart.itemId.includes(element.id)) {
+                    const index = this.cart.cart.filter((x) => x.id === element.id);
+                    element['quantiy'] = index[0].quantiy;
+                  } else {
+                    element['quantiy'] = 0;
+                  }
+                  this.topProducts.push(element);
+                });
+              }
+            },
+            (error) => {
+              console.log(error);
+              this.dummyTopProducts = [];
+            }
+          );
+
+          this.api.post('products/getHome', param).subscribe(
+            (data: any) => {
+              console.log('home products', data);
+              this.dummyTopProducts = [];
+              if (data && data.status === 200 && data.data && data.data.length) {
+                data.data.forEach((element) => {
+                  if (element.variations && element.size === '1' && element.variations !== '') {
+                    if (
+                      ((x) => {
+                        try {
+                          JSON.parse(x);
+                          return true;
+                        } catch (e) {
+                          return false;
+                        }
+                      })(element.variations)
+                    ) {
+                      element.variations = JSON.parse(element.variations);
+                      element['variant'] = 0;
+                    } else {
+                      element.variations = [];
+                      element['variant'] = 1;
+                    }
+                  } else {
+                    element.variations = [];
+                    element['variant'] = 1;
+                  }
+                  if (this.cart.itemId.includes(element.id)) {
+                    const index = this.cart.cart.filter((x) => x.id === element.id);
+                    element['quantiy'] = index[0].quantiy;
+                  } else {
+                    element['quantiy'] = 0;
+                  }
+                  this.topProducts.push(element);
+                });
+              }
+            },
+            (error) => {
+              this.dummyTopProducts = [];
+              console.log(error);
+            }
+          );
+
+          // this.api.post('products/getProductWithCity', param).subscribe((data: any) => {
+          //   console.log('getProductWithCity', data);
+          //   if (data && data.status === 200 && data.data && data.data.length) {
+          //     this.dummyProducts = data.data;
+          //   } else {
+          //     this.dummyProducts = []
+          //   }
+          // }, error => {
+          //   console.log(error);
+          //   this.dummyProducts = []
+          // });
+        } else {
+          this.haveStores = false;
+          this.stores = [];
+          console.log('no city found');
+          this.dummyCates = [];
+          this.dummyBanners = [];
+          this.bottomDummy = [];
+          this.betweenDummy = [];
+          this.dummyTopProducts = [];
+          this.dummyProducts = [];
+          this.categories = [];
+          this.banners = [];
+          this.bottomBanners = [];
+          this.betweenBanners = [];
+          this.topProducts = [];
+          this.products = [];
+          this.chMod.detectChanges();
+        }
+      },
+      (error) => {
+        console.log('error in get store by city', error);
+        this.stores = [];
+        this.haveStores = false;
         this.dummyCates = [];
         this.dummyBanners = [];
         this.bottomDummy = [];
@@ -251,27 +292,10 @@ export class HomePage implements OnInit {
         this.betweenBanners = [];
         this.topProducts = [];
         this.products = [];
+        this.util.errorToast(this.util.getString('Something went wrong'));
         this.chMod.detectChanges();
       }
-    }, error => {
-      console.log('error in get store by city', error);
-      this.stores = [];
-      this.haveStores = false;
-      this.dummyCates = [];
-      this.dummyBanners = [];
-      this.bottomDummy = [];
-      this.betweenDummy = [];
-      this.dummyTopProducts = [];
-      this.dummyProducts = [];
-      this.categories = [];
-      this.banners = [];
-      this.bottomBanners = [];
-      this.betweenBanners = [];
-      this.topProducts = [];
-      this.products = [];
-      this.util.errorToast(this.util.getString('Something went wrong'));
-      this.chMod.detectChanges();
-    });
+    );
   }
 
   isOpen(start, end) {
@@ -284,7 +308,7 @@ export class HomePage implements OnInit {
     if (time.isBetween(beforeTime, afterTime)) {
       return true;
     }
-    return false
+    return false;
   }
 
   getTime(time) {
@@ -299,94 +323,106 @@ export class HomePage implements OnInit {
     this.cart.addItem(item);
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  whatsAppMessage() {
+    location.href = 'https://wa.me/966583001241?text=Hello';
   }
 
   getBanners() {
     this.dummyBanners = Array(5);
-    this.api.get('banners').subscribe((data: any) => {
-      console.log(data);
-      this.dummyBanners = [];
-      this.betweenDummy = [];
-      this.bottomDummy = [];
-      this.bottomBanners = [];
-      this.betweenBanners = [];
-      this.banners = [];
-      if (data && data.status === 200 && data.data && data.data.length) {
-        data.data.forEach(element => {
-          if (element && element.status === '1') {
-            if (element.position === '0') {
-              this.banners.push(element);
-            } else if (element.position === '1') {
-              this.bottomBanners.push(element);
-            } else {
-              this.betweenBanners.push(element);
+    this.api.get('banners').subscribe(
+      (data: any) => {
+        console.log(data);
+        this.dummyBanners = [];
+        this.betweenDummy = [];
+        this.bottomDummy = [];
+        this.bottomBanners = [];
+        this.betweenBanners = [];
+        this.banners = [];
+        if (data && data.status === 200 && data.data && data.data.length) {
+          data.data.forEach((element) => {
+            if (element && element.status === '1') {
+              if (element.position === '0') {
+                this.banners.push(element);
+              } else if (element.position === '1') {
+                this.bottomBanners.push(element);
+              } else {
+                this.betweenBanners.push(element);
+              }
             }
-          }
-        });
-        console.log('top', this.banners);
-        console.log('bottom', this.bottomBanners);
-        console.log('between', this.betweenBanners);
+          });
+          console.log('top', this.banners);
+          console.log('bottom', this.bottomBanners);
+          console.log('between', this.betweenBanners);
+        }
+      },
+      (error) => {
+        console.log(error);
+        this.dummyBanners = [];
       }
-    }, error => {
-      console.log(error);
-      this.dummyBanners = [];
-    });
+    );
   }
 
   getQuanity(id) {
-    const data = this.cart.cart.filter(x => x.id === id);
+    const data = this.cart.cart.filter((x) => x.id === id);
     return data[0].quantiy;
   }
 
   getCategorys() {
     this.dummyCates = Array(10);
-    this.api.get('categories').subscribe((datas: any) => {
-      this.dummyCates = [];
-      const cates = [];
-      if (datas && datas.data && datas.data.length) {
-        datas.data.forEach(element => {
-          if (element.status === '1') {
-            const info = {
-              id: element.id,
-              name: element.name,
-              cover: element.cover,
-              subCates: []
+    this.api.get('categories').subscribe(
+      (datas: any) => {
+        this.dummyCates = [];
+        const cates = [];
+        if (datas && datas.data && datas.data.length) {
+          datas.data.forEach((element) => {
+            if (element.status === '1') {
+              const info = {
+                id: element.id,
+                name: element.name,
+                cover: element.cover,
+                subCates: [],
+              };
+              const cats = {
+                id: element.id,
+                name: element.name,
+                cover: element.cover,
+              };
+              this.allcates.push(cats);
+              cates.push(info);
             }
-            const cats = {
-              id: element.id,
-              name: element.name,
-              cover: element.cover,
-            }
-            this.allcates.push(cats);
-            cates.push(info);
-          }
-        });
-      }
-
-      this.api.get('subcate').subscribe((subCates: any) => {
-        console.log('sub cates', subCates);
-        if (subCates && subCates.status === 200 && subCates.data && subCates.data.length) {
-          cates.forEach((element, i) => {
-            subCates.data.forEach(sub => {
-              if (sub.status === '1' && element.id === sub.cate_id) {
-                // this.categories[i].subCates.push(sub);
-                cates[i].subCates.push(sub);
-              }
-            });
           });
-          // console.log('=>>', this.categories);
-          this.categories = cates;
         }
-      }, error => {
+
+        this.api.get('subcate').subscribe(
+          (subCates: any) => {
+            console.log('sub cates', subCates);
+            if (subCates && subCates.status === 200 && subCates.data && subCates.data.length) {
+              cates.forEach((element, i) => {
+                subCates.data.forEach((sub) => {
+                  if (sub.status === '1' && element.id === sub.cate_id) {
+                    // this.categories[i].subCates.push(sub);
+                    cates[i].subCates.push(sub);
+                  }
+                });
+              });
+              // console.log('=>>', this.categories);
+              this.categories = cates;
+            }
+          },
+          (error) => {
+            console.log(error);
+            this.util.errorToast(this.util.getString('Something went wrong'));
+          }
+        );
+      },
+      (error) => {
         console.log(error);
         this.util.errorToast(this.util.getString('Something went wrong'));
-      });
-    }, error => {
-      console.log(error);
-      this.util.errorToast(this.util.getString('Something went wrong'));
-      this.dummyCates = [];
-    });
+        this.dummyCates = [];
+      }
+    );
   }
 
   openMenu() {
@@ -407,7 +443,7 @@ export class HomePage implements OnInit {
     this.topProducts[index].quantiy = this.getQuanity(product.id);
     if (this.topProducts[index].quantiy === 1) {
       this.topProducts[index].quantiy = 0;
-      this.cart.removeItem(product.id)
+      this.cart.removeItem(product.id);
     } else {
       this.topProducts[index].quantiy = this.topProducts[index].quantiy - 1;
       this.cart.addQuantity(this.topProducts[index].quantiy, product.id);
@@ -417,8 +453,8 @@ export class HomePage implements OnInit {
   goToSingleProduct(item) {
     const param: NavigationExtras = {
       queryParams: {
-        id: item.id
-      }
+        id: item.id,
+      },
     };
 
     this.router.navigate(['tabs/home/product'], param);
@@ -432,8 +468,8 @@ export class HomePage implements OnInit {
     const param: NavigationExtras = {
       queryParams: {
         id: item.id,
-        name: item.name
-      }
+        name: item.name,
+      },
     };
     this.router.navigate(['tabs/home/sub-category'], param);
   }
@@ -448,16 +484,16 @@ export class HomePage implements OnInit {
     if (item.type === '0') {
       // Category
       console.log('open category');
-      const name = this.categories.filter(x => x.id === item.link);
+      const name = this.categories.filter((x) => x.id === item.link);
       let cateName: any = '';
       if (name && name.length) {
-        cateName = name[0].name
+        cateName = name[0].name;
       }
       const param: NavigationExtras = {
         queryParams: {
           id: item.link,
-          name: cateName
-        }
+          name: cateName,
+        },
       };
       this.router.navigate(['tabs/home/sub-category'], param);
     } else if (item.type === '1') {
@@ -465,8 +501,8 @@ export class HomePage implements OnInit {
       console.log('open product');
       const param: NavigationExtras = {
         queryParams: {
-          id: item.link
-        }
+          id: item.link,
+        },
       };
 
       this.router.navigate(['tabs/categories/product'], param);
@@ -481,9 +517,9 @@ export class HomePage implements OnInit {
     const navData: NavigationExtras = {
       queryParams: {
         id: val.id,
-        name: val.name
-      }
-    }
+        name: val.name,
+      },
+    };
     this.router.navigate(['/tabs/categories/products'], navData);
   }
 
@@ -499,27 +535,30 @@ export class HomePage implements OnInit {
     console.log('selected city===>>', city);
     if (city && city !== null && city !== 'null') {
       const param = {
-        id: city
+        id: city,
       };
 
-      this.api.post('cities/getById', param).subscribe((data: any) => {
-        console.log('selected city', data);
-        if (data && data.status === 200 && data.data && data.data.length) {
-          const selectedCity = data.data.filter(x => x.status === '1');
-          console.log('selected city=======================', selectedCity);
-          if (selectedCity && selectedCity.length) {
-            this.util.city = selectedCity[0];
-            this.chMod.detectChanges();
+      this.api.post('cities/getById', param).subscribe(
+        (data: any) => {
+          console.log('selected city', data);
+          if (data && data.status === 200 && data.data && data.data.length) {
+            const selectedCity = data.data.filter((x) => x.status === '1');
+            console.log('selected city=======================', selectedCity);
+            if (selectedCity && selectedCity.length) {
+              this.util.city = selectedCity[0];
+              this.chMod.detectChanges();
+            } else {
+              localStorage.removeItem('city');
+            }
           } else {
             localStorage.removeItem('city');
           }
-        } else {
+        },
+        (error) => {
+          console.log(error);
           localStorage.removeItem('city');
         }
-      }, error => {
-        console.log(error);
-        localStorage.removeItem('city');
-      });
+      );
     }
   }
 
@@ -529,8 +568,8 @@ export class HomePage implements OnInit {
     const param: NavigationExtras = {
       queryParams: {
         id: item.uid,
-        name: item.name
-      }
+        name: item.name,
+      },
     };
     this.router.navigate(['tabs/home/store'], param);
   }
@@ -547,26 +586,28 @@ export class HomePage implements OnInit {
     this.router.navigate(['all-offers']);
   }
 
-
   search(event: string) {
     console.log(event);
     if (event && event !== '') {
       const param = {
         id: localStorage.getItem('city'),
-        search: event
+        search: event,
       };
       this.util.show();
-      this.api.post('products/getSearchItems', param).subscribe((data: any) => {
-        console.log('search data==>', data);
-        this.util.hide();
-        if (data && data.status === 200 && data.data) {
-          this.products = data.data;
+      this.api.post('products/getSearchItems', param).subscribe(
+        (data: any) => {
+          console.log('search data==>', data);
+          this.util.hide();
+          if (data && data.status === 200 && data.data) {
+            this.products = data.data;
+          }
+        },
+        (error) => {
+          console.log('error in searhc filess--->>', error);
+          this.util.hide();
+          this.util.errorToast(this.util.getString('Something went wrong'));
         }
-      }, error => {
-        console.log('error in searhc filess--->>', error);
-        this.util.hide();
-        this.util.errorToast(this.util.getString('Something went wrong'));
-      });
+      );
     }
   }
 
@@ -582,15 +623,16 @@ export class HomePage implements OnInit {
         console.log('OK');
         let title = '';
         if (this.util.cside === 'left') {
-          const price = item.variations && item.variations[0] &&
-            item.variations[0].items[index] &&
-            item.variations[0].items[index].discount ? item.variations[0].items[index].discount :
-            item.variations[0].items[index].price;
+          const price =
+            item.variations && item.variations[0] && item.variations[0].items[index] && item.variations[0].items[index].discount
+              ? item.variations[0].items[index].discount
+              : item.variations[0].items[index].price;
           title = element.title + ' - ' + this.util.currecny + ' ' + price;
         } else {
-          const price = item.variations && item.variations[0] && item.variations[0].items[index] &&
-            item.variations[0].items[index].discount ? item.variations[0].items[index].discount :
-            item.variations[0].items[index].price;
+          const price =
+            item.variations && item.variations[0] && item.variations[0].items[index] && item.variations[0].items[index].discount
+              ? item.variations[0].items[index].discount
+              : item.variations[0].items[index].price;
           title = element.title + ' - ' + price + ' ' + this.util.currecny;
         }
         const data = {
@@ -598,7 +640,7 @@ export class HomePage implements OnInit {
           type: 'radio',
           label: title,
           value: index,
-          checked: item.variant === index
+          checked: item.variant === index,
         };
         allData.push(data);
       });
@@ -614,24 +656,23 @@ export class HomePage implements OnInit {
             cssClass: 'secondary',
             handler: () => {
               console.log('Confirm Cancel');
-            }
-          }, {
+            },
+          },
+          {
             text: this.util.getString('Ok'),
             handler: (data) => {
               console.log('Confirm Ok', data);
               console.log('before', this.topProducts[indeX].variant);
               this.topProducts[indeX].variant = data;
               console.log('after', this.topProducts[indeX].variant);
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
 
       await alert.present();
     } else {
       console.log('none');
     }
-
   }
-
 }

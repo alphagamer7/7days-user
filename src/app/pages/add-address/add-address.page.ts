@@ -9,10 +9,11 @@
 */
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Geolocation, GeolocationOptions, Geoposition, PositionError } from '@ionic-native/geolocation/ngx';
-import { NavController } from '@ionic/angular';
+import { NavController, ModalController } from '@ionic/angular';
 import { UtilService } from 'src/app/services/util.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
+import { MapsPage } from '../maps/maps.page';
 declare var google;
 
 @Component({
@@ -39,11 +40,12 @@ export class AddAddressPage implements OnInit {
     private api: ApiService,
     public util: UtilService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    public modalController: ModalController
   ) {
-
-    this.route.queryParams.subscribe(data => {
+    this.route.queryParams.subscribe((data) => {
       console.log(data);
+
       if (data && data.from) {
         this.from = 'edit';
         const info = JSON.parse(data.data);
@@ -61,61 +63,89 @@ export class AddAddressPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  selectAddress(){
-    this.router.navigate(['maps']);
+  async selectAddress() {
+    const modal = await this.modalController.create({
+      component: MapsPage,
+      cssClass: 'my-custom-class',
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    console.log(data);
+    if (data && data.location) {
+      this.address = data.location;
+    }
   }
 
   addAddress() {
-    if (this.address === '' || this.landmark === '' || this.house === '' || this.pincode === '') {
-
+    if (
+      this.address === ''
+      // ||
+      // this.landmark === '' ||
+      // this.house === '' ||
+      // this.pincode === ''
+    ) {
       this.util.errorToast(this.util.getString('All Fields are required'));
       return false;
     }
     if (!this.lat || this.lat === '' || !this.lng || this.lng === '') {
-      const geocoder = new google.maps.Geocoder;
-      geocoder.geocode({ address: this.house + ' ' + this.landmark + ' ' + this.address + ' ' + this.pincode }, (results, status) => {
-        console.log(results, status);
-        if (status === 'OK' && results && results.length) {
-          this.lat = results[0].geometry.location.lat();
-          this.lng = results[0].geometry.location.lng();
-          console.log('----->', this.lat, this.lng);
-          console.log('call api');
-          this.util.show();
-          const param = {
-            uid: localStorage.getItem('uid'),
-            address: this.address,
-            lat: this.lat,
-            lng: this.lng,
-            title: this.title,
-            house: this.house,
-            landmark: this.landmark,
-            pincode: this.pincode
-          };
-          this.api.post('address/save', param).subscribe((data: any) => {
-            this.util.hide();
-            if (data && data.status === 200) {
-              this.util.publishNewAddress();
-              this.navCtrl.back();
-              this.util.showToast('Address added', 'success', 'bottom');
-            } else {
-              this.util.errorToast(this.util.getString('Something went wrong'));
-            }
-          }, error => {
-            console.log(error);
-            this.util.hide();
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode(
+        {
+          address: this.address,
+          // +
+          // ' ' +
+          // this.landmark +
+          // ' ' +
+          // this.address +
+          // ' ' +
+          // this.pincode,
+        },
+        (results, status) => {
+          console.log(results, status);
+          if (status === 'OK' && results && results.length) {
+            this.lat = results[0].geometry.location.lat();
+            this.lng = results[0].geometry.location.lng();
+            console.log('----->', this.lat, this.lng);
+            console.log('call api');
+            this.util.show();
+            const param = {
+              uid: localStorage.getItem('uid'),
+              address: this.address,
+              lat: this.lat,
+              lng: this.lng,
+              title: this.title,
+              house: '',
+              landmark: '',
+              pincode: '',
+            };
+            this.api.post('address/save', param).subscribe(
+              (data: any) => {
+                this.util.hide();
+                if (data && data.status === 200) {
+                  this.util.publishNewAddress();
+                  this.navCtrl.back();
+
+                  this.util.showToast('Address added', 'success', 'bottom');
+                  // this.router.navigate(['address']);
+                } else {
+                  this.util.errorToast(this.util.getString('Something went wrong'));
+                }
+              },
+              (error) => {
+                console.log(error);
+                this.util.hide();
+                this.util.errorToast(this.util.getString('Something went wrong'));
+              }
+            );
+          } else {
             this.util.errorToast(this.util.getString('Something went wrong'));
-          });
-        } else {
-          this.util.errorToast(this.util.getString('Something went wrong'));
-          return false;
+            return false;
+          }
         }
-      });
+      );
     }
-
-
   }
 
   updateAddress() {
@@ -124,47 +154,53 @@ export class AddAddressPage implements OnInit {
       return false;
     }
     if (!this.lat || this.lat === '' || !this.lng || this.lng === '') {
-      const geocoder = new google.maps.Geocoder;
-      geocoder.geocode({ address: this.house + ' ' + this.landmark + ' ' + this.address + ' ' + this.pincode }, (results, status) => {
-        console.log(results, status);
-        if (status === 'OK' && results && results.length) {
-          this.lat = results[0].geometry.location.lat();
-          this.lng = results[0].geometry.location.lng();
-          console.log('----->', this.lat, this.lng);
-          const param = {
-            id: this.id,
-            uid: localStorage.getItem('uid'),
-            address: this.address,
-            lat: this.lat,
-            lng: this.lng,
-            title: this.title,
-            house: this.house,
-            landmark: this.landmark,
-            pincode: this.pincode
-          };
-          this.util.show();
-          this.api.post('address/editList', param).subscribe((data: any) => {
-            this.util.hide();
-            if (data && data.status === 200) {
-              this.util.publishNewAddress();
-              this.navCtrl.back();
-              this.util.showToast('Address updated', 'success', 'bottom');
-            } else {
-              this.util.errorToast(this.util.getString('Something went wrong'));
-            }
-          }, error => {
-            console.log(error);
-            this.util.hide();
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode(
+        {
+          address: this.house + ' ' + this.landmark + ' ' + this.address + ' ' + this.pincode,
+        },
+        (results, status) => {
+          console.log(results, status);
+          if (status === 'OK' && results && results.length) {
+            this.lat = results[0].geometry.location.lat();
+            this.lng = results[0].geometry.location.lng();
+            console.log('----->', this.lat, this.lng);
+            const param = {
+              id: this.id,
+              uid: localStorage.getItem('uid'),
+              address: this.address,
+              lat: this.lat,
+              lng: this.lng,
+              title: this.title,
+              house: this.house,
+              landmark: this.landmark,
+              pincode: this.pincode,
+            };
+            this.util.show();
+            this.api.post('address/editList', param).subscribe(
+              (data: any) => {
+                this.util.hide();
+                if (data && data.status === 200) {
+                  this.util.publishNewAddress();
+                  this.navCtrl.back();
+                  this.util.showToast('Address updated', 'success', 'bottom');
+                } else {
+                  this.util.errorToast(this.util.getString('Something went wrong'));
+                }
+              },
+              (error) => {
+                console.log(error);
+                this.util.hide();
+                this.util.errorToast(this.util.getString('Something went wrong'));
+              }
+            );
+          } else {
             this.util.errorToast(this.util.getString('Something went wrong'));
-          });
-        } else {
-          this.util.errorToast(this.util.getString('Something went wrong'));
-          return false;
+            return false;
+          }
         }
-      });
+      );
     }
-
-
   }
 
   back() {

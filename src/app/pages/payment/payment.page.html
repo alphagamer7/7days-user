@@ -5,9 +5,9 @@
   Created : 10-Sep-2020
   This App Template Source code is licensed as per the
   terms found in the Website https://initappz.com/license
-  Copyright and Good Faith Purchasers © 2020-present initappz.
+  Copyright and Good Faith Purchasers ï¿½ 2020-present initappz.
  -->
- <ion-header mode="ios" class="ion-no-border">
+<ion-header mode="ios" class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-button (click)="back()">
@@ -29,42 +29,72 @@
 
   <div class="billing">
     <div class="singleRow">
-      <ion-label class="headerTitle"> {{util.getString('Item Total')}} </ion-label>
+      <ion-label class="headerTitle">
+        {{util.getString('Item Total')}}
+      </ion-label>
       <ion-label class="price">
-        <span *ngIf="util.cside ==='left'"> {{util.currecny}} {{cart.totalPrice}}</span>
-        <span *ngIf="util.cside ==='right'">{{cart.totalPrice}} {{util.currecny}} </span>
+        <span *ngIf="util.cside ==='left'">
+          {{util.currecny}} {{cart.totalPrice}}</span
+        >
+        <span *ngIf="util.cside ==='right'"
+          >{{cart.totalPrice}} {{util.currecny}}
+        </span>
       </ion-label>
     </div>
 
     <div class="singleRow" *ngIf="cart.coupon">
-      <ion-label class="headerTitle"> {{util.getString('Discount')}} </ion-label>
+      <ion-label class="headerTitle">
+        {{util.getString('Discount')}}
+      </ion-label>
       <ion-label class="price">
-        <span *ngIf="util.cside ==='left'"> {{util.currecny}} {{cart.discount}}</span>
-        <span *ngIf="util.cside ==='right'">{{cart.discount}} {{util.currecny}} </span>
+        <span *ngIf="util.cside ==='left'">
+          {{util.currecny}} {{cart.discount}}</span
+        >
+        <span *ngIf="util.cside ==='right'"
+          >{{cart.discount}} {{util.currecny}}
+        </span>
       </ion-label>
     </div>
 
     <div class="singleRow">
-      <ion-label class="headerTitle"> {{util.getString('Taxes & Charges')}} </ion-label>
+      <ion-label class="headerTitle">
+        {{util.getString('Taxes & Charges')}}
+      </ion-label>
       <ion-label class="price">
-        <span *ngIf="util.cside ==='left'"> {{util.currecny}} {{cart.orderTax}}</span>
-        <span *ngIf="util.cside ==='right'">{{cart.orderTax}} {{util.currecny}} </span>
+        <span *ngIf="util.cside ==='left'">
+          {{util.currecny}} {{cart.orderTax}}</span
+        >
+        <span *ngIf="util.cside ==='right'"
+          >{{cart.orderTax}} {{util.currecny}}
+        </span>
       </ion-label>
     </div>
 
     <div class="singleRow">
-      <ion-label class="headerTitle"> {{util.getString('Delivery Charges')}} </ion-label>
+      <ion-label class="headerTitle">
+        {{util.getString('Delivery Charges')}}
+      </ion-label>
       <ion-label class="price">
-        <span *ngIf="util.cside ==='left'"> {{util.currecny}} {{cart.deliveryPrice}}</span>
-        <span *ngIf="util.cside ==='right'">{{cart.deliveryPrice}} {{util.currecny}} </span>
+        <span *ngIf="util.cside ==='left'">
+          {{util.currecny}} {{cart.deliveryPrice}}</span
+        >
+        <span *ngIf="util.cside ==='right'"
+          >{{cart.deliveryPrice}} {{util.currecny}}
+        </span>
       </ion-label>
     </div>
 
     <div class="singleRow">
-      <ion-label class="headerTotal boldClass"> {{util.getString('Grand Total')}} </ion-label>
+      <ion-label class="headerTotal boldClass">
+        {{util.getString('Grand Total')}}
+      </ion-label>
       <ion-label class="priceTotal boldClass">
-        <span *ngIf="util.cside ==='left'"> {{util.currecny}} {{cart.grandTotal}}</span>
-        <span *ngIf="util.cside ==='right'">{{cart.grandTotal}} {{util.currecny}} </span>
+        <span *ngIf="util.cside ==='left'">
+          {{util.currecny}} {{cart.grandTotal}}</span
+        >
+        <span *ngIf="util.cside ==='right'"
+          >{{cart.grandTotal}} {{util.currecny}}
+        </span>
       </ion-label>
     </div>
   </div>
@@ -79,7 +109,11 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
 
-  <ion-item (click)="createOrder('cod')" lines="none" *ngIf="havePayment && haveCOD">
+  <ion-item
+    (click)="createOrder('cod')"
+    lines="none"
+    *ngIf="havePayment && haveCOD"
+  >
     <ion-thumbnail slot="start">
       <img src="assets/imgs/cod.png" />
     </ion-thumbnail>
@@ -87,7 +121,11 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item>
 
-  <ion-item (click)="createOrder('bank')" lines="none" *ngIf="havePayment && haveCOD">
+  <ion-item
+    (click)="createOrder('bank')"
+    lines="none"
+    *ngIf="havePayment && haveCOD"
+  >
     <ion-thumbnail slot="start">
       <img src="assets/imgs/card.png" />
     </ion-thumbnail>

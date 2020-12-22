@@ -95,7 +95,7 @@ export class OrderRatingPage implements OnInit {
 
         // if()
         this.datetime = moment(info.date_time).format('dddd, MMMM Do YYYY');
-        this.payMethod = info.paid_method === 'cod' ? 'COD' : 'PAID';
+        this.payMethod = info.paid_method === 'cod' ? this.util.getString('Cash on Delivery'): this.util.getString('Cash by ATM');
         this.orderAt = info.order_to;
         this.driverId = info.driver_id;
         if (this.driverId && this.driverId !== '') {
