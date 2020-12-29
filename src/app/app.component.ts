@@ -62,6 +62,7 @@ export class AppComponent {
       console.log('%c Copyright and Good Faith Purchasers © 2020-present initappz. ', 'background: #222; color: #bada55');
       this.appPages = this.util.appPage;
       const lng = localStorage.getItem('language');
+
       if (!lng || lng === null) {
         this.api.get('users/getDefaultSettings').subscribe(
           (data: any) => {
@@ -69,6 +70,7 @@ export class AppComponent {
             if (data && data.status === 200 && data.data) {
               const manage = data.data.manage;
               const language = data.data.lang;
+
               if (manage && manage.length > 0) {
                 if (manage[0].app_close === 0 || manage[0].app_close === '0') {
                   this.util.appClosed = true;
@@ -154,7 +156,7 @@ export class AppComponent {
               } else {
                 this.util.direction = 'ltr';
                 this.util.cside = 'right';
-                this.util.currecny = '$';
+                this.util.currecny = 'ر.س';
                 document.documentElement.dir = this.util.direction;
               }
               const general = data.data.general;
@@ -175,7 +177,7 @@ export class AppComponent {
             this.util.appClosed = false;
             this.util.direction = 'ltr';
             this.util.cside = 'right';
-            this.util.currecny = '$';
+            this.util.currecny = 'ر.س';
             document.documentElement.dir = this.util.direction;
           }
         );

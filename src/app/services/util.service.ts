@@ -9,7 +9,7 @@
 */
 
 import { Injectable } from '@angular/core';
-import { LoadingController, AlertController, ToastController, NavController, MenuController } from '@ionic/angular';
+import { LoadingController, AlertController, ToastController, NavController, MenuController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { Storage } from '@ionic/storage';
@@ -1382,17 +1382,16 @@ export class UtilService {
   }
 
   convertDate(dateItem) {
+    let dateVal = dateItem;
     var date;
-    if (!dateItem) {
+    if (!dateVal) {
       date = new Date();
     } else {
-      date = new Date(dateItem);
+      date = new Date(dateVal.replace(/-/g, '/'));
     }
-    var months = ['يناير', 'فبراير', 'مارس', 'إبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    var days = ['اﻷحد', 'اﻷثنين', 'الثلاثاء', 'اﻷربعاء', 'الخميس', 'الجمعة', 'السبت'];
-    var delDateString = days[date.getDay()] + ', ' + date.getDate() + ' ' + months[date.getMonth()] + ', ' + date.getFullYear();
-    return delDateString;
-    // console.log(delDateString); // Outputs اﻷحد, 4 ديسمبر, 2016
+
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('ar-EG', options);
   }
 
   getKeys(key): Promise<any> {

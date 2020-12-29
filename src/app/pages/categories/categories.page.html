@@ -12,7 +12,7 @@
     <ion-title> {{util.getString('Categories')}} </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openMenu()">
-        <img class="menuIcon" src="assets/sidemenu/menu_light.png" alt="">
+        <img class="menuIcon" src="assets/sidemenu/menu_light.png" alt="" />
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -38,10 +38,9 @@
     </ion-label>
   </ion-item>
   <div class="main" *ngIf="categories?.length && !dummy?.length">
-
     <div class="flex_main" *ngFor="let item of categories">
       <div class="flex_div" (click)="change(item.id)">
-        <img [src]="api.mediaURL+ item.cover" alt="" class="cateIcon">
+        <img [src]="api.mediaURL+ item.cover" alt="" class="cateIcon" />
         <div class="detail_div">
           <ion-label class="title_name" [class.boldFont]="selectedIndex === item.id">{{item.name}}</ion-label>
         </div>
@@ -52,9 +51,7 @@
         <div class="inlnes" *ngFor="let sub of item.subCates" (click)="goToProductList(sub)">
           <ion-label class="titles" [class.boldFont]="subIndex === sub.id">{{sub.name}}</ion-label>
         </div>
-
       </div>
     </div>
-
   </div>
 </ion-content>

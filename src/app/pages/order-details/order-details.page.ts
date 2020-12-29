@@ -202,8 +202,6 @@ export class OrderDetailsPage implements OnInit {
   ngOnInit() {}
 
   correctDate(date) {
-    console.log(date);
-
     return this.util.convertDate(date);
   }
 
