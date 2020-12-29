@@ -36,7 +36,7 @@ export class AddressPage implements OnInit {
     private popoverController: PopoverController,
     public cart: CartService
   ) {
-    this.route.queryParams.subscribe(data => {
+    this.route.queryParams.subscribe((data) => {
       console.log(data);
       if (data && data.from) {
         this.from = data.from;
@@ -49,8 +49,7 @@ export class AddressPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   back() {
     this.navCtrl.back();
@@ -58,21 +57,24 @@ export class AddressPage implements OnInit {
 
   getAddress() {
     const param = {
-      id: localStorage.getItem('uid')
-    }
+      id: localStorage.getItem('uid'),
+    };
     this.myaddress = [];
     this.dummy = Array(10);
-    this.api.post('address/getByUid', param).subscribe((data: any) => {
-      console.log(data);
-      this.dummy = [];
-      if (data && data.status === 200 && data.data.length) {
-        this.myaddress = data.data;
+    this.api.post('address/getByUid', param).subscribe(
+      (data: any) => {
+        console.log(data);
+        this.dummy = [];
+        if (data && data.status === 200 && data.data.length) {
+          this.myaddress = data.data;
+        }
+      },
+      (error) => {
+        console.log(error);
+        this.dummy = [];
+        this.util.errorToast(this.util.getString('Something went wrong'));
       }
-    }, error => {
-      console.log(error);
-      this.dummy = [];
-      this.util.errorToast(this.util.getString('Something went wrong'));
-    });
+    );
   }
 
   ionViewWillEnter() {
@@ -85,7 +87,7 @@ export class AddressPage implements OnInit {
 
   selectAddress() {
     if (this.from === 'cart') {
-      const selecte = this.myaddress.filter(x => x.id === this.selectedAddress);
+      const selecte = this.myaddress.filter((x) => x.id === this.selectedAddress);
       const item = selecte[0];
       console.log('item', item);
       this.cart.deliveryAddress = item;
@@ -100,15 +102,15 @@ export class AddressPage implements OnInit {
       event: events,
       mode: 'ios',
     });
-    popover.onDidDismiss().then(data => {
+    popover.onDidDismiss().then((data) => {
       console.log(data.data);
       if (data && data.data) {
         if (data.data === 'edit') {
           const navData: NavigationExtras = {
             queryParams: {
               from: 'edit',
-              data: JSON.stringify(item)
-            }
+              data: JSON.stringify(item),
+            },
           };
           this.router.navigate(['add-address'], navData);
         } else if (data.data === 'delete') {
@@ -122,30 +124,35 @@ export class AddressPage implements OnInit {
             background: 'white',
             showCancelButton: true,
             showConfirmButton: true,
-            cancelButtonText: 'cancel'
-          }).then(data => {
+            cancelButtonText: 'cancel',
+          }).then((data) => {
             console.log(data);
             if (data && data.value) {
               this.util.show();
               const param = {
-                id: item.id
+                id: item.id,
               };
-              this.api.post('address/deleteList', param).subscribe(info => {
-                console.log(info);
-                this.util.hide();
-                this.getAddress();
-              }, error => {
-                console.log(error);
-                this.util.hide();
-                this.util.errorToast(this.util.getString('Something went wrong'));
-              });
+              this.api.post('address/deleteList', param).subscribe(
+                (info) => {
+                  console.log(info);
+                  this.util.hide();
+                  this.getAddress();
+                },
+                (error) => {
+                  console.log(error);
+                  this.util.hide();
+                  this.util.errorToast(this.util.getString('Something went wrong'));
+                }
+              );
             }
           });
-
         }
       }
     });
     await popover.present();
   }
 
+  getAddressTitle(item) {
+    return this.util.getString(item);
+  }
 }

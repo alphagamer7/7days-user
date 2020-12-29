@@ -78,8 +78,11 @@ export class OrderDetailsPage implements OnInit {
         if (data && data.status === 200 && data.data.length > 0) {
           const info = data.data[0];
           console.log(info);
+          console.log('--------info--------');
+
           this.orderDetail = JSON.parse(info.notes);
           console.log('driver???? ======>', this.orderDetail);
+
           const order = JSON.parse(info.orders);
           console.log('order=====>>', order);
           const finalOrder = [];
@@ -131,8 +134,11 @@ export class OrderDetailsPage implements OnInit {
           }
 
           // if()
-          this.datetime = moment(info.date_time).format('dddd, MMMM Do YYYY');
-          this.payMethod = info.paid_method === 'cod' ? 'Cash' : 'Bank Card';
+          console.log('------date-----', info.date_time);
+
+          this.datetime = this.util.convertDate(info.date_time);
+          //  moment(info.date_time).format('dddd, MMMM Do YYYY');
+          this.payMethod = info.paid_method === 'cod' ? 'كاش' : 'شبكة';
           this.orderAt = info.order_to;
           this.driverId = info.driver_id;
           if (this.driverId && this.driverId !== '') {
@@ -195,8 +201,14 @@ export class OrderDetailsPage implements OnInit {
 
   ngOnInit() {}
 
+  correctDate(date) {
+    console.log(date);
+
+    return this.util.convertDate(date);
+  }
+
   getTranslatedStatus(itemValue) {
-    if (itemValue == 'Order Created') return 'أجل خلق';
+    if (itemValue == 'Order Created') return 'تم تنفيذ الطلب';
     if (itemValue.startsWith('Order accepted by')) return 'قبول الطلب';
     if (itemValue.startsWith('Order rejected by')) return 'تم رفض الطلب';
     if (itemValue.startsWith('Order delivered by')) return 'تم إيصال الطلب';
@@ -219,6 +231,10 @@ export class OrderDetailsPage implements OnInit {
     } else {
       this.util.errorToast(this.util.getString('Email not found'));
     }
+  }
+
+  getAddressTitle(item) {
+    return this.util.getString(item);
   }
 
   callStore(item) {
@@ -357,9 +373,12 @@ export class OrderDetailsPage implements OnInit {
   getOrderStatus(id) {
     const item = this.status.filter((x) => x.id === id);
     if (item && item.length) {
+      if (item[0].status == 'created') {
+        return 'تم تنفيذ الطلب';
+      }
       return this.util.getString(item[0].status);
     }
-    return 'created';
+    return 'تم تنفيذ الطلب';
   }
 
   getOrderStatusFromDriver(id) {

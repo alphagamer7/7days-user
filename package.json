@@ -23,6 +23,7 @@
     "@capacitor/android": "^2.4.4",
     "@capacitor/cli": "^2.4.4",
     "@capacitor/core": "^2.4.4",
+    "@capacitor/ios": "^2.4.4",
     "@ionic-native/android-permissions": "^5.27.0",
     "@ionic-native/camera": "^5.27.0",
     "@ionic-native/core": "^5.0.7",

@@ -59,7 +59,7 @@
 
     <div class="flex_div">
       <ion-label> {{util.getString('Deliver to')}} </ion-label>
-      <ion-label class="values">{{orderAt}}</ion-label>
+      <ion-label class="values">{{getAddressTitle(orderAt.toUpperCase())}}</ion-label>
     </div>
     <div class="flex_div" *ngIf="orderAt ==='home'">
       <ion-label class="values"> <ion-icon slot="start" name="location-outline" color="primary"></ion-icon> {{address}} </ion-label>
@@ -82,7 +82,6 @@
     </div>
 
     <ion-label class="titles"> {{util.getString('Order Tracking')}} </ion-label>
-    {{orderDetail| json}}
     <div class="tracking_div">
       <div class="left">
         <span *ngFor="let item of orderDetail">
@@ -94,7 +93,7 @@
       <div class="right">
         <span *ngFor="let item of orderDetail">
           <div class="line_div">
-            <ion-label [class.round_div_red]="item.status === 1" [class.round_div_darkgray]="item.status === 1"> {{item.time}}</ion-label>
+            <ion-label [class.round_div_red]="item.status === 1" [class.round_div_darkgray]="item.status === 1">{{correctDate(item.time)}}</ion-label>
           </div>
           <div class="round_div_gray" [class.round_div_red]="item.status === 1" [class.round_div_darkgray]="item.status === 1">{{getTranslatedStatus(item.value)}}</div>
         </span>

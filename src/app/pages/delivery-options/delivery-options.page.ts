@@ -22,7 +22,6 @@ import { Router, NavigationExtras } from '@angular/router';
   styleUrls: ['./delivery-options.page.scss'],
 })
 export class DeliveryOptionsPage implements OnInit {
-
   deliveryOption: any = 'home';
 
   storeAddress: any[] = [];
@@ -39,39 +38,41 @@ export class DeliveryOptionsPage implements OnInit {
   ) {
     this.getStoreList();
     this.datetime = 'today';
-    this.time = this.util.getString('Today - ') + moment().format('dddd, MMMM Do YYYY');
+    // this.time = this.util.getString('اليوم - ') + moment().format('dddd, MMMM Do YYYY');
+    this.time = this.util.getString('اليوم - ') + this.util.convertDate(null);
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   back() {
     this.navCtrl.back();
   }
 
-
   getStoreList() {
-    const info = [...new Set(this.cart.cart.map(item => item.store_id))];
+    const info = [...new Set(this.cart.cart.map((item) => item.store_id))];
     console.log('store iddss==================>>', info);
     // test
     // info.push(10, 17);
     // test
     const param = {
-      id: info.join()
+      id: info.join(),
     };
-    this.api.post('stores/getStoresData', param).subscribe((data: any) => {
-      console.log(data);
-      if (data && data.status === 200 && data.data.length) {
-        this.storeAddress = data.data;
-        this.cart.stores = this.storeAddress;
-      } else {
-        this.util.showToast(this.util.getString('No Stores Found'), 'danger', 'bottom');
-        this.back();
+    this.api.post('stores/getStoresData', param).subscribe(
+      (data: any) => {
+        console.log(data);
+        if (data && data.status === 200 && data.data.length) {
+          this.storeAddress = data.data;
+          this.cart.stores = this.storeAddress;
+        } else {
+          this.util.showToast(this.util.getString('No Stores Found'), 'danger', 'bottom');
+          this.back();
+        }
+      },
+      (error) => {
+        console.log('error', error);
+        this.util.showToast(this.util.getString('Something went wrong'), 'danger', 'bottom');
       }
-    }, error => {
-      console.log('error', error);
-      this.util.showToast(this.util.getString('Something went wrong'), 'danger', 'bottom');
-    });
+    );
   }
 
   async openTime(ev) {
@@ -80,7 +81,7 @@ export class DeliveryOptionsPage implements OnInit {
       event: ev,
       mode: 'ios',
     });
-    popover.onDidDismiss().then(data => {
+    popover.onDidDismiss().then((data) => {
       console.log(data.data);
       if (data.data) {
         if (data.data === 'today') {
@@ -102,10 +103,10 @@ export class DeliveryOptionsPage implements OnInit {
       console.log('address');
       const param: NavigationExtras = {
         queryParams: {
-          from: 'cart'
-        }
+          from: 'cart',
+        },
       };
-      this.router.navigate(['tabs/cart/address'], param)
+      this.router.navigate(['tabs/cart/address'], param);
     } else {
       console.log('payment');
       this.router.navigate(['tabs/cart/payment']);
