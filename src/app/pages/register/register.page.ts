@@ -7,26 +7,29 @@
   terms found in the Website https://initappz.com/license
   Copyright and Good Faith Purchasers © 2020-present initappz.
 */
-import { Component, OnInit } from '@angular/core';
-import { ModalController, NavController } from '@ionic/angular';
+import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
+import { ModalController, NavController, IonContent } from '@ionic/angular';
 import { UtilService } from 'src/app/services/util.service';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { ApiService } from 'src/app/services/api.service';
-import {
-  InAppBrowser,
-  InAppBrowserOptions,
-} from '@ionic-native/in-app-browser/ngx';
+import { InAppBrowser, InAppBrowserOptions } from '@ionic-native/in-app-browser/ngx';
 import { VerifyPage } from '../verify/verify.page';
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage implements OnInit {
+  @ViewChild(IonContent) content: IonContent;
+
+  scrollToTop() {
+    this.content.scrollToTop(400);
+  }
   fname: any = '';
   lname: any = '';
-  mobile: any = '';
+  mobile: any = 'test';
   gender: any = '1';
   email: any = '';
   password: any = '';
@@ -43,7 +46,8 @@ export class RegisterPage implements OnInit {
     private router: Router,
     private api: ApiService,
     private iab: InAppBrowser,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private ngZone: NgZone
   ) {
     this.dummy = this.util.countrys;
     this.selectedCC({
@@ -51,6 +55,10 @@ export class RegisterPage implements OnInit {
       country_name: 'Saudi Arabia',
       dialling_code: '966',
     });
+    // this.ngZone.run(() => {
+    //   this.mobile = '+' + this.ccCode;
+    //   console.log(this.mobile);
+    // });
   }
 
   ngOnInit() {}
@@ -70,54 +78,35 @@ export class RegisterPage implements OnInit {
   login() {
     console.log('login');
     if (!this.check) {
-      this.util.showToast(
-        this.util.getString('Please accept terms and conditions'),
-        'dark',
-        'bottom'
-      );
+      this.util.showToast(this.util.getString('Please accept terms and conditions'), 'dark', 'bottom');
       return false;
     }
-    if (
-      !this.fname ||
-      !this.lname ||
-      !this.mobile ||
-      !this.email ||
-      !this.password ||
-      this.ccCode === '' ||
-      !this.ccCode
-    ) {
-      this.util.showToast(
-        this.util.getString('All Fields are required'),
-        'dark',
-        'bottom'
-      );
+    if (!this.fname || !this.lname || !this.mobile || !this.email || !this.password || this.ccCode === '' || !this.ccCode) {
+      this.util.showToast(this.util.getString('All Fields are required'), 'dark', 'bottom');
       return false;
     }
 
     const emailfilter = /^[\w._-]+[+]?[\w._-]+@[\w.-]+\.[a-zA-Z]{2,6}$/;
     if (!emailfilter.test(this.email)) {
-      this.util.showToast(
-        this.util.getString('Please enter valid email'),
-        'dark',
-        'bottom'
-      );
+      this.util.showToast(this.util.getString('Please enter valid email'), 'dark', 'bottom');
       return false;
     }
 
+    // set correct mobile code
+    // this.mobile = this.mobile.startsWith('0') ? this.mobile.replace('0', '+966') : this.mobile;
+    this.mobile = this.mobile.toString();
     const param = {
       first_name: this.fname,
       last_name: this.lname,
       email: this.email,
       password: this.password,
       gender: this.gender,
-      fcm_token: localStorage.getItem('fcm')
-        ? localStorage.getItem('fcm')
-        : 'NA',
+      fcm_token: localStorage.getItem('fcm') ? localStorage.getItem('fcm') : 'NA',
       type: 'user',
       lat: '',
       lng: '',
       cover: 'NA',
-      mobile: '+' + this.ccCode + this.mobile,
+      mobile: this.mobile.startsWith('0') ? this.mobile.replace('0', '+966') : this.mobile,
       status: this.util.twillo === '1' ? 0 : 1,
       verified: 0,
       others: 1,
@@ -154,10 +143,7 @@ export class RegisterPage implements OnInit {
                 }
               );
             }
-            this.sendVerification(
-              this.email,
-              this.api.baseUrl + 'users/verify?uid=' + data.data.id
-            );
+            this.sendVerification(this.email, this.api.baseUrl + 'users/verify?uid=' + data.data.id);
             this.navCtrl.navigateRoot(['']);
           }
         } else if (data && data.status === 500) {
@@ -172,6 +158,27 @@ export class RegisterPage implements OnInit {
         this.util.errorToast(this.util.getString('Something went wrong'));
       }
     );
+  }
+
+  public focusInput(event): void {
+    // let total = 0;
+    // let container = null;
+    // const _rec = (obj) => {
+    //   total += obj.offsetTop;
+    //   const par = obj.offsetParent;
+    //   if (par && par.localName !== 'ion-content') {
+    //     _rec(par);
+    //   } else {
+    //     container = par;
+    //   }
+    // };
+    // _rec(event.target);
+    // container.scrollToPoint(0, total - 50, 400);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    var element = document.getElementById('email');
+
+    element.scrollIntoView();
   }
 
   goToLogin() {
@@ -202,11 +209,7 @@ export class RegisterPage implements OnInit {
     console.log(events.detail.value);
     if (events.value !== '') {
       this.countries = this.dummy.filter((item) => {
-        return (
-          item.country_name
-            .toLowerCase()
-            .indexOf(events.detail.value.toLowerCase()) > -1
-        );
+        return item.country_name.toLowerCase().indexOf(events.detail.value.toLowerCase()) > -1;
       });
     } else {
       this.countries = [];
@@ -223,10 +226,10 @@ export class RegisterPage implements OnInit {
   open(type) {
     // https://initappz.com/groceryeeaagya/privacy.html
     // https://initappz.com/groceryeeaagya/eula.html
-    if (type === 'eula') {
-      this.iab.create('https://initappz.com/groceryeeaagya/eula.html');
+    if (type === 'terms') {
+      this.iab.create('http://app.7days.one/terms.html');
     } else {
-      this.iab.create('https://initappz.com/groceryeeaagya/privacy.html');
+      this.iab.create('http://app.7days.one/privacy.html');
     }
   }
 }
