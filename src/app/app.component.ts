@@ -61,6 +61,7 @@ export class AppComponent {
       this.splashScreen.hide();
       console.log('%c Copyright and Good Faith Purchasers © 2020-present initappz. ', 'background: #222; color: #bada55');
       this.appPages = this.util.appPage;
+      localStorage.setItem('language', 'ar2.json');
       const lng = localStorage.getItem('language');
 
       if (!lng || lng === null) {
@@ -204,6 +205,7 @@ export class AppComponent {
               );
             }
           });
+          this.oneSignal.enableSound(true);
           await this.oneSignal.endInit();
         }, 1000);
       }

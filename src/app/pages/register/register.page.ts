@@ -93,8 +93,8 @@ export class RegisterPage implements OnInit {
     }
 
     // set correct mobile code
-    // this.mobile = this.mobile.startsWith('0') ? this.mobile.replace('0', '+966') : this.mobile;
     this.mobile = this.mobile.toString();
+    // this.mobile = '+966' + this.mobile;
     const param = {
       first_name: this.fname,
       last_name: this.lname,
@@ -106,7 +106,7 @@ export class RegisterPage implements OnInit {
       lat: '',
       lng: '',
       cover: 'NA',
-      mobile: this.mobile.startsWith('0') ? this.mobile.replace('0', '+966') : this.mobile,
+      mobile: this.mobile,
       status: this.util.twillo === '1' ? 0 : 1,
       verified: 0,
       others: 1,
@@ -115,6 +115,7 @@ export class RegisterPage implements OnInit {
     };
 
     console.log('param', param);
+    console.log('mobile', this.mobile);
     this.loggedIn = true;
     this.api.post('users/registerUser', param).subscribe(
       (data: any) => {
@@ -158,6 +159,12 @@ export class RegisterPage implements OnInit {
         this.util.errorToast(this.util.getString('Something went wrong'));
       }
     );
+  }
+
+  mobileChange() {
+    // this.mobile = this.mobile.toString();
+    // this.mobile = '+966' + this.mobile;
+    // console.log(this.mobile);
   }
 
   public focusInput(event): void {
@@ -227,9 +234,11 @@ export class RegisterPage implements OnInit {
     // https://initappz.com/groceryeeaagya/privacy.html
     // https://initappz.com/groceryeeaagya/eula.html
     if (type === 'terms') {
-      this.iab.create('http://app.7days.one/terms.html');
+      window.open('http://app.7days.one/terms.html', '_blank');
+      // this.iab.create('http://app.7days.one/terms.html');
     } else {
-      this.iab.create('http://app.7days.one/privacy.html');
+      window.open('http://app.7days.one/privacy.html', '_blank');
+      // this.iab.create('http://app.7days.one/privacy.html');
     }
   }
 }

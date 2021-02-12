@@ -45,21 +45,21 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>This app requires calendar access to set thier availability in terms of days and time.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>To Take Photos and Video</string>
+	<string>This app requires camera access to take pictures to update profile image.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contact access to share job related information with other users.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Always allow Geolocation?</string>
+	<string>This app requires user location, based on user location it shows driver availability.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow Geolocation?</string>
+	<string>This app requires user location, based on user location it shows driver availability.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>To Record Audio With Video</string>
+	<string>This app requires microphone access to record messages to driver.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This app requires device Motion access to work properly.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Store camera photos to camera</string>
+	<string>This app requires photo libray access to upload document or images.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To Pick Photos from Library</string>
+	<string>This app requires photo libray access to upload document or images.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

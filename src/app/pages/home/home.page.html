@@ -1,12 +1,3 @@
-<!-- 
-   Authors : initappz (Rahul Jograna)
-  Website : https://initappz.com/
-  App Name : ionic 5 groceryee app
-  Created : 10-Sep-2020
-  This App Template Source code is licensed as per the
-  terms found in the Website https://initappz.com/license
-  Copyright and Good Faith Purchasers © 2020-present initappz.
- -->
 <ion-header class="ion-no-border" *ngIf="!util.appClosed">
   <ion-toolbar color="primary">
     <ion-title color="light" class="ion-text-left">
@@ -27,8 +18,8 @@
 <app-closed *ngIf="util.appClosed"></app-closed>
 
 <ion-content *ngIf="!util.appClosed">
-  <div class="flx">
-    <ion-searchbar
+  <div>
+    <!-- <ion-searchbar
       [placeholder]="util.getString('Search  products')"
       [(ngModel)]="terms"
       inputmode="text"
@@ -40,16 +31,24 @@
       mode="ios"
       showCancelButton="never"
     >
-    </ion-searchbar>
-    <ion-button (click)="search(terms)" expand="block" fill="clear" size="small">
-      <ion-icon slot="icon-only" name="search"></ion-icon>
-    </ion-button>
+    </ion-searchbar> -->
+    <ion-toolbar class="search-toolbar">
+      <ion-buttons slot="end" (click)="selectAddress()" class="geolocation-button" [class.using-geolocation]="'false'">
+        <ion-icon style="margin-top: 7px; margin-left: 7px; padding: 2px" icon-only class="geolocation-button" name="locate"></ion-icon>
+      </ion-buttons>
+      <ion-searchbar class="search-places-bar" placeholder="التوصيل إلى المنزل" (ionClear)="clearSearch()" (ionFocus)="selectAddress()"></ion-searchbar>
+    </ion-toolbar>
   </div>
   <div class="searchList" *ngIf="products?.length">
     <ion-item *ngFor="let item of products" (click)="goToSingleProduct(item)">
       <ion-label>{{item.name}}</ion-label>
       <ion-icon name="arrow-redo-outline" slot="end"></ion-icon>
     </ion-item>
+  </div>
+  <div>
+    <ion-button (click)="search(terms)" expand="block" fill="outline" size="default">
+      <ion-label>كلمني واتس أب</ion-label>&nbsp;<ion-icon name="logo-whatsapp"></ion-icon>
+    </ion-button>
   </div>
   <div class="main_content_div" *ngIf="haveStores === true">
     <div class="cateLbl">
@@ -83,12 +82,10 @@
     </div>
 
     <!-- Top Banners -->
-    <div class="slider_div" *ngIf="!dummyBanners?.length && banners?.length">
+    <!-- <div class="slider_div" *ngIf="!dummyBanners?.length && banners?.length">
       <ion-slides [options]="slideOpts">
         <ion-slide *ngFor="let item of dummyBanners">
-          <!-- <div class="card"> -->
           <ion-skeleton-text animated style="width: 100%; height: 120px"></ion-skeleton-text>
-          <!-- </div> -->
         </ion-slide>
         <ion-slide *ngFor="let item of banners">
           <div class="card">
@@ -100,9 +97,9 @@
           </div>
         </ion-slide>
       </ion-slides>
-    </div>
+    </div> -->
 
-    <div class="cateLbl" *ngIf="!dummyTopProducts?.length && topProducts?.length">
+    <!-- <div class="cateLbl" *ngIf="!dummyTopProducts?.length && topProducts?.length">
       <ion-label class="all"> {{util.getString('Top Picked')}} </ion-label>
       <ion-label class="view" (click)="topicked()"
         >{{util.getString('View All')}}
@@ -111,10 +108,10 @@
         </div>
         <ion-icon name="chevron-forward-outline" color="primary"></ion-icon>
       </ion-label>
-    </div>
+    </div> -->
 
     <!-- NEW -->
-    <div class="listView">
+    <!-- <div class="listView">
       <ion-slides [options]="slideTops">
         <ion-slide *ngFor="let item of dummyTopProducts">
           <ion-skeleton-text animated style="width: 100%; height: 120px"></ion-skeleton-text>
@@ -231,11 +228,11 @@
           </div>
         </ion-slide>
       </ion-slides>
-    </div>
+    </div> -->
     <!-- NEW -->
 
     <!-- Start Top Store -->
-    <div class="cateLbl" *ngIf="haveStores && stores?.length">
+    <!-- <div class="cateLbl" *ngIf="haveStores && stores?.length">
       <ion-label class="all"> {{util.getString('Top Stores')}} </ion-label>
       <ion-label class="view" (click)="topStores()"
         >{{util.getString('View All')}}
@@ -244,9 +241,9 @@
         </div>
         <ion-icon name="chevron-forward-outline" color="primary"></ion-icon>
       </ion-label>
-    </div>
+    </div> -->
 
-    <div class="topProducts" *ngIf="haveStores && stores?.length">
+    <!-- <div class="topProducts" *ngIf="haveStores && stores?.length">
       <ion-slides [options]="slideOpts">
         <ion-slide *ngFor="let item of stores;let i = index;">
           <div class="content_div">
@@ -273,7 +270,7 @@
           </div>
         </ion-slide>
       </ion-slides>
-    </div>
+    </div> -->
     <!-- End Top Store -->
 
     <!-- Between Banner -->
@@ -347,9 +344,4 @@
     <img src="assets/imgs/nothing.png" alt="" srcset="" class="imgs" />
     <p class="ion-text-center bolder">{{util.getString('No Stores Found Near You!')}}</p>
   </div>
-  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
-    <ion-fab-button (click)="whatsAppMessage()" color="success">
-      <ion-icon name="logo-whatsapp"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 </ion-content>

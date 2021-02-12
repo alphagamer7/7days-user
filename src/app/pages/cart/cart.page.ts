@@ -33,12 +33,9 @@ export class CartPage implements OnInit {
     public cart: CartService,
     public api: ApiService,
     private navCtrl: NavController
-  ) {
+  ) {}
 
-  }
-
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   openMenu() {
     this.util.openMenu();
@@ -54,7 +51,7 @@ export class CartPage implements OnInit {
   remove(product, index) {
     if (this.cart.cart[index].quantiy === 1) {
       this.cart.cart[index].quantiy = 0;
-      this.cart.removeItem(product.id)
+      this.cart.removeItem(product.id);
     } else {
       this.cart.cart[index].quantiy = this.cart.cart[index].quantiy - 1;
       this.cart.addQuantity(this.cart.cart[index].quantiy, product.id);
@@ -74,7 +71,22 @@ export class CartPage implements OnInit {
       this.util.errorToast(this.util.getString('Minimum order amount must be') + text + this.util.getString('or more'));
       return false;
     }
+    // this.cart.deliveryAt = this.deliveryOption;
+    // this.cart.datetime = this.datetime;
+    // if (this.deliveryOption === 'home') {
+    //   console.log('address');
+    //   const param: NavigationExtras = {
+    //     queryParams: {
+    //       from: 'cart',
+    //     },
+    //   };
+    //   this.router.navigate(['tabs/cart/address'], param);
+    // } else {
+    //   console.log('payment');
+    //   this.router.navigate(['tabs/cart/payment']);
+    // }
     this.router.navigate(['/tabs/cart/delivery-options']);
+    this.router.navigate(['tabs/cart/payment']);
   }
 
   back() {
@@ -97,15 +109,16 @@ export class CartPage implements OnInit {
         console.log('OK');
         let title = '';
         if (this.util.cside === 'left') {
-          const price = item.variations && item.variations[0] &&
-            item.variations[0].items[index] &&
-            item.variations[0].items[index].discount ? item.variations[0].items[index].discount :
-            item.variations[0].items[index].price;
+          const price =
+            item.variations && item.variations[0] && item.variations[0].items[index] && item.variations[0].items[index].discount
+              ? item.variations[0].items[index].discount
+              : item.variations[0].items[index].price;
           title = element.title + ' - ' + this.util.currecny + ' ' + price;
         } else {
-          const price = item.variations && item.variations[0] && item.variations[0].items[index] &&
-            item.variations[0].items[index].discount ? item.variations[0].items[index].discount :
-            item.variations[0].items[index].price;
+          const price =
+            item.variations && item.variations[0] && item.variations[0].items[index] && item.variations[0].items[index].discount
+              ? item.variations[0].items[index].discount
+              : item.variations[0].items[index].price;
           title = element.title + ' - ' + price + ' ' + this.util.currecny;
         }
         const data = {
@@ -113,7 +126,7 @@ export class CartPage implements OnInit {
           type: 'radio',
           label: title,
           value: index,
-          checked: item.variant === index
+          checked: item.variant === index,
         };
         allData.push(data);
       });
@@ -129,8 +142,9 @@ export class CartPage implements OnInit {
             cssClass: 'secondary',
             handler: () => {
               console.log('Confirm Cancel');
-            }
-          }, {
+            },
+          },
+          {
             text: this.util.getString('Ok'),
             handler: (data) => {
               console.log('Confirm Ok', data);
@@ -138,15 +152,14 @@ export class CartPage implements OnInit {
               this.cart.cart[indeX].variant = data;
               console.log('after', this.cart.cart[indeX].variant);
               this.cart.calcuate();
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
 
       await alert.present();
     } else {
       console.log('none');
     }
-
   }
 }

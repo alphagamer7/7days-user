@@ -14,7 +14,8 @@ import { ApiService } from 'src/app/services/api.service';
 import { CartService } from 'src/app/services/cart.service';
 import * as moment from 'moment';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
+import { MapsPage } from '../maps/maps.page';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -52,7 +53,7 @@ export class HomePage implements OnInit {
   dummyStores: any[] = [];
   stores: any[] = [];
   terms: any;
-
+  address: any;
   allcates: any[] = [];
   constructor(
     public util: UtilService,
@@ -61,7 +62,8 @@ export class HomePage implements OnInit {
     public cart: CartService,
     private chMod: ChangeDetectorRef,
     private iab: InAppBrowser,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private modalController: ModalController
   ) {
     this.dummyCates = Array(5);
     this.dummyBanners = Array(5);
@@ -369,6 +371,19 @@ export class HomePage implements OnInit {
     return data[0].quantiy;
   }
 
+  async selectAddress() {
+    const modal = await this.modalController.create({
+      component: MapsPage,
+      cssClass: 'my-custom-class',
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    console.log(data);
+    if (data && data.location) {
+      this.address = data.location;
+    }
+  }
+
   getCategorys() {
     this.dummyCates = Array(10);
     this.api.get('categories').subscribe(
@@ -376,23 +391,26 @@ export class HomePage implements OnInit {
         this.dummyCates = [];
         const cates = [];
         if (datas && datas.data && datas.data.length) {
-          datas.data.forEach((element) => {
-            if (element.status === '1') {
-              const info = {
-                id: element.id,
-                name: element.name,
-                cover: element.cover,
-                subCates: [],
-              };
-              const cats = {
-                id: element.id,
-                name: element.name,
-                cover: element.cover,
-              };
-              this.allcates.push(cats);
-              cates.push(info);
-            }
-          });
+          datas.data
+            .slice()
+            .reverse()
+            .forEach((element) => {
+              if (element.status === '1') {
+                const info = {
+                  id: element.id,
+                  name: element.name,
+                  cover: element.cover,
+                  subCates: [],
+                };
+                const cats = {
+                  id: element.id,
+                  name: element.name,
+                  cover: element.cover,
+                };
+                this.allcates.push(cats);
+                cates.push(info);
+              }
+            });
         }
 
         this.api.get('subcate').subscribe(
