@@ -137,7 +137,7 @@ export class DirectionPage implements OnInit {
           this.grantRequest();
         });
         const watch = this.geolocation.watchPosition();
-        watch.subscribe((data) => {
+        watch.subscribe((data: any) => {
           if (data && data.coords) {
             console.log('update', data.coords);
             this.myLat = data.coords.latitude;
@@ -166,7 +166,7 @@ export class DirectionPage implements OnInit {
       }
     });
     const watch = this.geolocation.watchPosition();
-    watch.subscribe((data) => {
+    watch.subscribe((data: any) => {
       if (data && data.coords) {
         console.log('update', data.coords);
         this.myLat = data.coords.latitude;

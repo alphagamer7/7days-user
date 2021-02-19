@@ -40,6 +40,7 @@ import { DriverRatingPageModule } from './pages/driver-rating/driver-rating.modu
 import { FormsModule } from '@angular/forms';
 import { SortPageModule } from './pages/sort/sort.module';
 import { VerifyPageModule } from './pages/verify/verify.module';
+import { NativeGeocoder } from "@ionic-native/native-geocoder/ngx";
 
 @NgModule({
   declarations: [AppComponent],
@@ -56,7 +57,7 @@ import { VerifyPageModule } from './pages/verify/verify.module';
     DriverRatingPageModule,
     VerifyPageModule,
     SortPageModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [
     StatusBar,
@@ -69,8 +70,10 @@ import { VerifyPageModule } from './pages/verify/verify.module';
     Diagnostic,
     Geolocation,
     InAppBrowser,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    Geolocation,
+    NativeGeocoder,
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

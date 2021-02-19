@@ -17,11 +17,16 @@
 <ion-content>
   <div class="search-container">
     <ion-toolbar class="search-toolbar">
-      <ion-buttons slot="end" (click)="geolocateMe()" class="geolocation-button" [class.using-geolocation]="map_model.using_geolocation">
+      <ion-buttons
+        slot="end"
+        (click)="getLocation()"
+        class="geolocation-button"
+        [class.using-geolocation]="map_model.using_geolocation"
+      >
         <ion-icon
           style="margin-top: 7px; margin-left: 7px; padding: 2px"
           icon-only
-          (click)="geolocateMe()"
+          (click)="getLocation()"
           class="geolocation-button"
           [class.using-geolocation]="map_model.using_geolocation"
           name="locate"
@@ -29,16 +34,86 @@
       </ion-buttons>
       <ion-searchbar
         class="search-places-bar"
-        [(ngModel)]="map_model.search_query"
+        [(ngModel)]="map_model.minifiedAddress"
         placeholder="التوصيل إلى المنزل"
-        [(ngModel)]="map_model.search_query"
         (ionClear)="clearSearch()"
         (ionInput)="searchPlacesPredictions(map_model.search_query)"
       ></ion-searchbar>
     </ion-toolbar>
-    <ion-list [hidden]="map_model.search_places_predictions.length == 0" class="search-options-list">
-      <ion-item *ngFor="let place of map_model.search_places_predictions" tappable (click)="selectSearchResult(place)"> {{ place.description }} </ion-item>
+    <ion-list
+      [hidden]="map_model.search_places_predictions.length == 0"
+      class="search-options-list"
+    >
+      <ion-item
+        *ngFor="let place of map_model.search_places_predictions"
+        tappable
+        (click)="selectSearchResult(place)"
+      >
+        {{ place.description }}
+      </ion-item>
     </ion-list>
   </div>
-  <div #map id="map"></div>
+  <div #mapSe id="map"></div>
+  <div class="bottom-container">
+    <div class="address-cntr">
+      <div>
+        <h3>{{getMinifiedAddress()}}</h3>
+        <p>{{map_model.search_query}}</p>
+      </div>
+    </div>
+    <div class="inner-container">
+      <ion-button
+        expand="block"
+        [hidden]="!isOptionHidden"
+        (click)="showAddressOptions()"
+      >
+        <span>Select</span>
+      </ion-button>
+      <div [hidden]="isOptionHidden" class="hd" style="display: none">
+        <ion-item>
+          <ion-textarea
+            [(ngModel)]="description"
+            placeholder="Enter address details..."
+          ></ion-textarea>
+        </ion-item>
+
+        <ion-list>
+          <ion-radio-group (ionChange)="radioGroupChange($event)">
+            <ion-item>
+              <ion-label slot="end">Home</ion-label>
+              <ion-icon slot="end" name="home-outline"></ion-icon>
+              <ion-radio slot="end" value="home"></ion-radio>
+            </ion-item>
+
+            <ion-item>
+              <ion-label slot="end">Work</ion-label>
+              <ion-icon name="build-outline" slot="end"></ion-icon>
+              <ion-radio slot="end" value="work"></ion-radio>
+            </ion-item>
+
+            <ion-item>
+              <ion-label slot="end">HangOut</ion-label>
+              <ion-icon slot="end" name="wine-outline"></ion-icon>
+              <ion-radio slot="end" value="hangout"></ion-radio>
+            </ion-item>
+
+            <ion-item>
+              <ion-label slot="end">Camp</ion-label>
+              <ion-icon name="earth-outline" slot="end"></ion-icon>
+              <ion-radio slot="end" value="camp"></ion-radio>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+      </div>
+      <ion-button
+        class="bdn"
+        style="display: none"
+        expand="block"
+        (click)="addNewAddress()"
+        [hidden]="isOptionHidden"
+      >
+        <span>Done</span>
+      </ion-button>
+    </div>
+  </div>
 </ion-content>
