@@ -30,6 +30,7 @@
             <application android:usesCleartextTraffic="true" />
             <application android:networkSecurityConfig="@xml/network_security_config" />
         </edit-config>
+        <resource-file src="src/assets/alert.mp3" target="app/src/main/res/raw/alert.mp3" />
         <resource-file src="resources/android/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
         <allow-intent href="market:*" />
         <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
