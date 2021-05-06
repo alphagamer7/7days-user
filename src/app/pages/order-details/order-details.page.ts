@@ -14,6 +14,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { NavController, AlertController } from '@ionic/angular';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import * as moment from 'moment';
+import { CartService } from 'src/app/services/cart.service';
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.page.html',
@@ -49,7 +50,8 @@ export class OrderDetailsPage implements OnInit {
     private navCtrl: NavController,
     private alertController: AlertController,
     private router: Router,
-    private iab: InAppBrowser
+    private iab: InAppBrowser,
+    private cartService: CartService
   ) {
     this.route.queryParams.subscribe((data) => {
       console.log(data);
@@ -238,7 +240,15 @@ export class OrderDetailsPage implements OnInit {
   callStore(item) {
     if (item) {
       // window.open('tel:' + item);
-      this.iab.create('tel:' + item, '_blank');
+      console.log('called');
+
+      var link = document.createElement('a');
+      link.setAttribute('href', 'tel:0570120777');
+      // <a href="tel:911\">
+      //   <ion-icon name="call"></ion-icon>911{' '}
+      // </a>;
+      // this.iab.create('tel:' + item, '_blank');
+      link.click();
     } else {
       this.util.errorToast(this.util.getString('Number not found'));
     }
@@ -247,7 +257,10 @@ export class OrderDetailsPage implements OnInit {
   emailStore(item) {
     if (item) {
       // window.open('mailto:' + item);
-      this.iab.create('mailto:' + item, '_blank');
+      // this.iab.create('mailto:' + item, '_blank');
+      var link = document.createElement('a');
+      link.setAttribute('href', 'mailto:' + item);
+      link.click();
     } else {
       this.util.errorToast(this.util.getString('Email not found'));
     }
@@ -332,8 +345,8 @@ export class OrderDetailsPage implements OnInit {
   }
 
   sendNotification(value) {
-    if (this.userInfo && this.userInfo.fcm_token) {
-      this.api.sendNotification(this.util.getString('Your order #') + this.id + ' ' + value, this.util.getString('Order') + ' ' + value, this.userInfo.fcm_token).subscribe(
+    if (this.stores) {
+      this.api.sendNotification(this.util.getString('Your order #') + this.id + ' ' + value, this.util.getString('Order') + ' ' + value, this.stores[0].token).subscribe(
         (data: any) => {
           console.log('onesignal', data);
         },

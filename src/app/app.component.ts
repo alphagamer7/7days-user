@@ -18,6 +18,10 @@ import { UtilService } from './services/util.service';
 import { CartService } from './services/cart.service';
 import * as moment from 'moment';
 import { Router } from '@angular/router';
+
+import { Plugins } from '@capacitor/core';
+
+const { Device } = Plugins;
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -55,15 +59,26 @@ export class AppComponent {
     console.log(moment().format('lll'));
   }
 
+  async showUpdateToast() {
+    const info = await Device.getInfo();
+    console.log('deviceInfo', info);
+    if (info.appVersion !== '1.0.5') {
+      this.util.showToast('لاستعمال كافة المميزات نزل التحديث الجديد', 'success', 'bottom');
+    }
+  }
+
   initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.backgroundColorByHexString('#45C261');
       this.splashScreen.hide();
       console.log('%c Copyright and Good Faith Purchasers © 2020-present initappz. ', 'background: #222; color: #bada55');
+
       this.appPages = this.util.appPage;
       localStorage.setItem('language', 'ar2.json');
       const lng = localStorage.getItem('language');
-
+      setTimeout(() => {
+        this.showUpdateToast();
+      }, 1000);
       if (!lng || lng === null) {
         this.api.get('users/getDefaultSettings').subscribe(
           (data: any) => {
@@ -205,6 +220,7 @@ export class AppComponent {
               );
             }
           });
+
           this.oneSignal.enableSound(true);
           await this.oneSignal.endInit();
         }, 1000);

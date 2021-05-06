@@ -13,10 +13,9 @@ import { UtilService } from './util.service';
 import { element } from 'protractor';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
-
   public cart: any[] = [];
   public itemId: any[] = [];
   public totalPrice: any = 0;
@@ -36,16 +35,13 @@ export class CartService {
   public stores: any[] = [];
 
   public bulkOrder: any[] = [];
-  constructor(
-    public api: ApiService,
-    public util: UtilService
-  ) {
+  constructor(public api: ApiService, public util: UtilService) {
     this.util.getKeys('cart').then((data: any) => {
       if (data && data !== null && data !== 'null') {
         const userCart = JSON.parse(data);
         if (userCart && userCart.length > 0) {
           this.cart = userCart;
-          this.itemId = [...new Set(this.cart.map(item => item.id))];
+          this.itemId = [...new Set(this.cart.map((item) => item.id))];
           this.calcuate();
         } else {
           this.calcuate();
@@ -78,7 +74,7 @@ export class CartService {
   addQuantity(quantity, id) {
     console.log('iddd-->>', id);
     console.log('quantity', quantity);
-    this.cart.forEach(element => {
+    this.cart.forEach((element) => {
       if (element.id === id) {
         element.quantiy = quantity;
       }
@@ -89,8 +85,8 @@ export class CartService {
   removeItem(id) {
     console.log('remove this item from cart');
     console.log('current cart items', this.cart);
-    this.cart = this.cart.filter(x => x.id !== id);
-    this.itemId = this.itemId.filter(x => x !== id);
+    this.cart = this.cart.filter((x) => x.id !== id);
+    this.itemId = this.itemId.filter((x) => x !== id);
 
     console.log('====>>>>>>>>>', this.cart);
     console.log('items====>>>', this.itemId);
@@ -101,26 +97,26 @@ export class CartService {
     console.log('cart==>', this.cart);
     console.log('couiponnnnnnneee---->>', this.coupon);
     let total = 0;
-    this.cart.forEach(element => {
+    this.cart.forEach((element) => {
       if (element && element.discount === '0') {
         if (element.size === '1' || element.size === 1) {
           if (element.variations[0].items[element.variant].discount && element.variations[0].items[element.variant].discount !== 0) {
-            total = total + (parseFloat(element.variations[0].items[element.variant].discount) * element.quantiy);
+            total = total + parseFloat(element.variations[0].items[element.variant].discount) * element.quantiy;
           } else {
-            total = total + (parseFloat(element.variations[0].items[element.variant].price) * element.quantiy);
+            total = total + parseFloat(element.variations[0].items[element.variant].price) * element.quantiy;
           }
         } else {
-          total = total + (parseFloat(element.original_price) * element.quantiy);
+          total = total + parseFloat(element.original_price) * element.quantiy;
         }
       } else {
         if (element.size === '1' || element.size === 1) {
           if (element.variations[0].items[element.variant].discount && element.variations[0].items[element.variant].discount !== 0) {
-            total = total + (parseFloat(element.variations[0].items[element.variant].discount) * element.quantiy);
+            total = total + parseFloat(element.variations[0].items[element.variant].discount) * element.quantiy;
           } else {
-            total = total + (parseFloat(element.variations[0].items[element.variant].price) * element.quantiy);
+            total = total + parseFloat(element.variations[0].items[element.variant].price) * element.quantiy;
           }
         } else {
-          total = total + (parseFloat(element.sell_price) * element.quantiy);
+          total = total + parseFloat(element.sell_price) * element.quantiy;
         }
       }
     });
@@ -151,13 +147,13 @@ export class CartService {
     } else {
       this.grandTotal = this.totalPrice + this.orderTax;
     }
-    if (this.stores && this.stores.length && this.deliveryAddress && this.deliveryAt === 'home') {
+    // this.deliveryAt = 'home'
+    if (this.stores && this.stores.length && this.deliveryAddress) {
       console.log('--->>> delivery address===>>>', this.deliveryAddress);
       // this.deliveryPrice = 0;
       let totalKM = 0;
       this.stores.forEach(async (element) => {
-        const distance = await this.distanceInKmBetweenEarthCoordinates(this.deliveryAddress.lat, this.deliveryAddress.lng,
-          element.lat, element.lng);
+        const distance = await this.distanceInKmBetweenEarthCoordinates(this.deliveryAddress.lat, this.deliveryAddress.lng, element.lat, element.lng);
         console.log('distance', distance);
         totalKM = totalKM + distance;
       });
@@ -172,7 +168,7 @@ export class CartService {
             if (!this.discount || this.discount === null) {
               this.discount = 0;
             }
-            this.grandTotal = (this.totalPrice - parseFloat(this.discount)) + this.orderTax + distancePricer;
+            this.grandTotal = this.totalPrice - parseFloat(this.discount) + this.orderTax + distancePricer;
             this.grandTotal = parseFloat(this.grandTotal).toFixed(2);
             console.log('grand total===>>', this.grandTotal);
             // console.log('deliveryeeeeeeeee', this.deliveryPrice);
@@ -182,11 +178,10 @@ export class CartService {
             if (!this.discount || this.discount === null) {
               this.discount = 0;
             }
-            this.grandTotal = (this.totalPrice - parseFloat(this.discount)) + this.orderTax + this.shippingPrice;
+            this.grandTotal = this.totalPrice - parseFloat(this.discount) + this.orderTax + this.shippingPrice;
             this.grandTotal = parseFloat(this.grandTotal).toFixed(2);
             console.log('grand total===>>', this.grandTotal);
           }
-
         } else {
           this.deliveryPrice = 0;
           // this.grandTotal = this.totalPrice + this.orderTax;
@@ -195,17 +190,16 @@ export class CartService {
             this.discount = 0;
           }
           console.log('order tax', this.orderTax);
-          this.grandTotal = (this.totalPrice - parseFloat(this.discount)) + this.orderTax;
+          this.grandTotal = this.totalPrice - parseFloat(this.discount) + this.orderTax;
           this.grandTotal = parseFloat(this.grandTotal).toFixed(2);
           console.log('grand total===>>', this.grandTotal);
         }
       }, 1000);
-
     } else {
       console.log('no store,no delivery address, no shipping price valid');
       this.deliveryPrice = 0;
       // this.grandTotal = this.totalPrice + this.orderTax;
-      this.grandTotal = (this.totalPrice - parseFloat(this.discount)) + this.orderTax;
+      this.grandTotal = this.totalPrice - parseFloat(this.discount) + this.orderTax;
       this.grandTotal = parseFloat(this.grandTotal).toFixed(2);
       console.log('grand total===>>', this.grandTotal);
     }
@@ -218,21 +212,21 @@ export class CartService {
 
   createBulkOrder() {
     const order = [];
-    const ids = [...new Set(this.cart.map(item => item.store_id))];
-    ids.forEach(element => {
+    const ids = [...new Set(this.cart.map((item) => item.store_id))];
+    ids.forEach((element) => {
       const param = {
         id: element,
-        order: []
+        order: [],
       };
       order.push(param);
     });
 
     ids.forEach((element, index) => {
-      this.cart.forEach(cart => {
+      this.cart.forEach((cart) => {
         if (cart.store_id === element) {
           order[index].order.push(cart);
         }
-      })
+      });
     });
     this.bulkOrder = order;
     console.log('=====================================================');
@@ -244,7 +238,7 @@ export class CartService {
   }
 
   degreesToRadians(degrees) {
-    return degrees * Math.PI / 180;
+    return (degrees * Math.PI) / 180;
   }
 
   distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
@@ -257,10 +251,8 @@ export class CartService {
     lat1 = this.degreesToRadians(lat1);
     lat2 = this.degreesToRadians(lat2);
 
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return earthRadiusKm * c;
   }
-
 }

@@ -9,7 +9,7 @@
 */
 import { Component, OnInit } from '@angular/core';
 import { UtilService } from '../../services/util.service';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { CartService } from 'src/app/services/cart.service';
 import { ApiService } from 'src/app/services/api.service';
 import { AlertController, NavController } from '@ionic/angular';
@@ -35,7 +35,10 @@ export class CartPage implements OnInit {
     private navCtrl: NavController
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('this.cart', this.cart);
+    this.getStoreList();
+  }
 
   openMenu() {
     this.util.openMenu();
@@ -58,6 +61,33 @@ export class CartPage implements OnInit {
     }
   }
 
+  getStoreList() {
+    const info = [...new Set(this.cart.cart.map((item) => item.store_id))];
+    console.log('store iddss==================>>---', info);
+    // test
+    // info.push(10, 17);
+    // test
+    const param = {
+      id: info.join(),
+    };
+    this.api.post('stores/getStoresData', param).subscribe(
+      (data: any) => {
+        console.log('getStoresData', data);
+        if (data && data.status === 200 && data.data.length) {
+          this.cart.stores = data.data;
+          this.cart.calcuate();
+        } else {
+          // this.util.showToast(this.util.getString('No Stores Found'), 'danger', 'bottom');
+          // this.back();
+        }
+      },
+      (error) => {
+        console.log('error', error);
+        this.util.showToast(this.util.getString('Something went wrong'), 'danger', 'bottom');
+      }
+    );
+  }
+
   goToPayment() {
     console.log(this.cart.minOrderPrice);
 
@@ -71,22 +101,29 @@ export class CartPage implements OnInit {
       this.util.errorToast(this.util.getString('Minimum order amount must be') + text + this.util.getString('or more'));
       return false;
     }
-    // this.cart.deliveryAt = this.deliveryOption;
+
+    this.cart.deliveryAt = 'home';
     // this.cart.datetime = this.datetime;
     // if (this.deliveryOption === 'home') {
-    //   console.log('address');
-    //   const param: NavigationExtras = {
-    //     queryParams: {
-    //       from: 'cart',
-    //     },
-    //   };
-    //   this.router.navigate(['tabs/cart/address'], param);
+    //   // console.log('address');
+
     // } else {
     //   console.log('payment');
     //   this.router.navigate(['tabs/cart/payment']);
     // }
-    this.router.navigate(['/tabs/cart/delivery-options']);
-    this.router.navigate(['tabs/cart/payment']);
+    console.log(this.cart.deliveryAddress);
+
+    if (!this.cart.deliveryAddress) {
+      const param: NavigationExtras = {
+        queryParams: {
+          from: 'cart',
+        },
+      };
+      this.router.navigate(['maps'], param);
+    } else {
+      this.router.navigate(['/tabs/cart/delivery-options']);
+      this.router.navigate(['tabs/cart/payment']);
+    }
   }
 
   back() {

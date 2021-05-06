@@ -34,8 +34,7 @@
     </ion-searchbar> -->
     <ion-toolbar class="search-toolbar">
       <ion-buttons slot="end" (click)="selectAddress()" class="geolocation-button" [class.using-geolocation]="'false'">
-        <ion-icon style="margin-top: 7px; margin-left: 7px; padding: 2px" icon-only class="geolocation-button"
-          name="locate"></ion-icon>
+        <ion-icon style="margin-top: 7px; margin-left: 7px; padding: 2px" icon-only class="geolocation-button" name="locate"></ion-icon>
       </ion-buttons>
       <ion-button class="get-location-btn" expand="block" fill="outline" (click)="getAddressList()">
         <span> التوصيل إلى المنزل </span>
@@ -47,17 +46,19 @@
   <div class="address-list-container" [hidden]="!isAddressOpen">
     <div class="inner-main-container">
       <div id="r-address">
-        <div *ngFor="let addr of myaddress" class="adr-container">
-          <div class="main-container" (click)="getAddressList()">
-            <ion-label>{{addr?.title}}</ion-label>
-            <ion-icon name="location-outline"></ion-icon>
-            <input type="radio" class="input-color" name="address" value="hangout">
+        <ion-radio-group [(ngModel)]="optionSelected">
+          <div *ngFor="let addr of myaddress" class="adr-container">
+            <div class="main-container" (click)="setAddressList(addr)">
+              <ion-label>{{addr?.title}}</ion-label>
+              <ion-icon name="location-outline"></ion-icon>
+              <ion-radio slot="start" name="address" value="{{addr.id}}"></ion-radio>
+            </div>
+            <p>{{addr?.address}}</p>
           </div>
-          <p>{{addr?.address}}</p>
-        </div>
+        </ion-radio-group>
       </div>
       <ion-button class="add-loc-btn" expand="block" fill="outline" (click)="selectAddress()">
-        <span>New Location</span>
+        <span>عنوان جديد</span>
         <ion-icon name="add-circle-outline"></ion-icon>
       </ion-button>
     </div>
@@ -69,17 +70,14 @@
     </ion-item>
   </div>
   <div>
-    <ion-button (click)="search(terms)" expand="block" fill="outline" size="default">
+    <ion-button (click)="whatsAppMessage()" expand="block" fill="outline" size="default">
       <ion-label>كلمني واتس أب</ion-label>&nbsp;<ion-icon name="logo-whatsapp"></ion-icon>
     </ion-button>
   </div>
   <div class="main_content_div" *ngIf="haveStores === true">
     <div class="cateLbl">
       <ion-label class="all"> {{util.getString('All Categories')}} </ion-label>
-      <ion-label class="view" (click)="goToCatrgory()">{{util.getString('View All')}}<ion-icon
-          name="chevron-forward-outline" color="primary">
-        </ion-icon>
-      </ion-label>
+      <ion-label class="view" (click)="goToCatrgory()">{{util.getString('View All')}}<ion-icon name="chevron-forward-outline" color="primary"> </ion-icon> </ion-label>
     </div>
 
     <div class="sliders">
@@ -87,8 +85,7 @@
         <div class="imgs">
           <img [src]="api.mediaURL + item.cover" class="icon" />
         </div>
-        <ion-label class="name">{{ (item.name.length>10)? (item.name | slice:0:10)+'..':(item.name)
-          }}</ion-label>
+        <ion-label class="name">{{ (item.name.length>10)? (item.name | slice:0:10)+'..':(item.name) }}</ion-label>
       </div>
 
       <div *ngFor="let item of dummyCates" style="margin: 0px 10px">
@@ -98,10 +95,9 @@
     </div>
 
     <div class="cateLbl" *ngIf="!dummyBanners?.length && banners?.length">
-      <ion-label class="all">
-        {{util.getString('Exclusive Offers')}}
-      </ion-label>
-      <ion-label class="view" (click)="allOffers()">{{util.getString('View All')}}
+      <ion-label class="all"> {{util.getString('Exclusive Offers')}} </ion-label>
+      <ion-label class="view" (click)="allOffers()"
+        >{{util.getString('View All')}}
         <div class="ion-activatable">
           <ion-ripple-effect type="bounded"></ion-ripple-effect>
         </div>
@@ -309,11 +305,9 @@
             <ion-skeleton-text animated style="width: 100%; height: 120px"></ion-skeleton-text>
           </div>
         </ion-slide>
-        <ion-slide *ngFor="let item of betweenBanners">
+        <ion-slide *ngFor="let item of betweenBanners" [options]="slideOptions">
           <div class="card">
-            <div class="back_image"
-              [ngStyle]="{'background-image':'url('+api.mediaURL+item.cover+'),url(assets/bg.png)'}"
-              (click)="openLink(item)">
+            <div class="back_image" [ngStyle]="{'background-image':'url('+api.mediaURL+item.cover+'),url(assets/bg.png)'}" (click)="openLink(item)">
               <div class="overlay_div" *ngIf="item.message">
                 <ion-label> {{item.message}} </ion-label>
               </div>
@@ -333,9 +327,7 @@
         </ion-slide>
         <ion-slide *ngFor="let item of bottomBanners">
           <div class="card">
-            <div class="back_image"
-              [ngStyle]="{'background-image':'url('+api.mediaURL+item.cover+'),url(assets/bg.png)'}"
-              (click)="openLink(item)">
+            <div class="back_image" [ngStyle]="{'background-image':'url('+api.mediaURL+item.cover+'),url(assets/bg.png)'}" (click)="openLink(item)">
               <div class="overlay_div" *ngIf="item.message">
                 <ion-label> {{item.message}} </ion-label>
               </div>
@@ -365,8 +357,7 @@
       <p class="cateName">{{item.name}}</p>
       <ion-row>
         <ion-col size="4" *ngFor="let sub of item.subCates" class="bgColor" (click)="goToProductList(sub)">
-          <div class="bg_img" [ngStyle]="{'background-image':'url('+api.mediaURL+sub.cover+'),url(assets/bg.png)'}">
-          </div>
+          <div class="bg_img" [ngStyle]="{'background-image':'url('+api.mediaURL+sub.cover+'),url(assets/bg.png)'}"></div>
           <p class="subCateName">{{sub.name}}</p>
         </ion-col>
       </ion-row>
@@ -375,8 +366,6 @@
 
   <div *ngIf="haveStores === false" class="nothing">
     <img src="assets/imgs/nothing.png" alt="" srcset="" class="imgs" />
-    <p class="ion-text-center bolder">
-      {{util.getString('No Stores Found Near You!')}}
-    </p>
+    <p class="ion-text-center bolder">{{util.getString('No Stores Found Near You!')}}</p>
   </div>
 </ion-content>
