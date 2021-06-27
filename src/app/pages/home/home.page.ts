@@ -7,24 +7,27 @@
   terms found in the Website https://initappz.com/license
   Copyright and Good Faith Purchasers © 2020-present initappz.
 */
-import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
-import { UtilService } from "../../services/util.service";
-import { Router, NavigationExtras } from "@angular/router";
-import { ApiService } from "src/app/services/api.service";
-import { CartService } from "src/app/services/cart.service";
-import * as moment from "moment";
-import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
-import { AlertController, ModalController } from "@ionic/angular";
-import { MapsPage } from "../maps/maps.page";
-import { AddAddressPage } from "../add-address/add-address.page";
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { UtilService } from '../../services/util.service';
+import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
+import { ApiService } from 'src/app/services/api.service';
+import { CartService } from 'src/app/services/cart.service';
+import * as moment from 'moment';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { AlertController, ModalController } from '@ionic/angular';
+import { MapsPage } from '../maps/maps.page';
+import { AddAddressPage } from '../add-address/add-address.page';
 @Component({
-  selector: "app-home",
-  templateUrl: "./home.page.html",
-  styleUrls: ["./home.page.scss"],
+  selector: 'app-home',
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
   slideOpts = {
-    slidesPerView: 1.3,
+    initialSlide: 0,
+    slidesPerView: 1,
+    autoplay: true,
+    speed: 40,
   };
   slideTops = {
     slidesPerView: 2,
@@ -58,6 +61,8 @@ export class HomePage implements OnInit {
   allcates: any[] = [];
   myaddress: any[] = [];
   isAddressOpen: boolean = false;
+
+  optionSelected = '';
   constructor(
     public util: UtilService,
     private router: Router,
@@ -66,7 +71,9 @@ export class HomePage implements OnInit {
     private chMod: ChangeDetectorRef,
     private iab: InAppBrowser,
     private alertCtrl: AlertController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private route: ActivatedRoute,
+    private ngZone: NgZone
   ) {
     this.dummyCates = Array(5);
     this.dummyBanners = Array(5);
@@ -82,11 +89,11 @@ export class HomePage implements OnInit {
     this.products = [];
     if (!this.util.appClosed) {
       this.getInit();
-      const pop = localStorage.getItem("pop");
-      if (pop && pop != null && pop !== "null") {
-        console.log("alredy poped");
+      const pop = localStorage.getItem('pop');
+      if (pop && pop != null && pop !== 'null') {
+        console.log('alredy poped');
       } else {
-        console.log("open pop");
+        console.log('open pop');
         this.getPopup();
       }
     }
@@ -107,31 +114,35 @@ export class HomePage implements OnInit {
         this.getInit();
       }
     });
-    this.getAddress();
+    this.route.queryParams.subscribe((params) => {
+      this.getAddress();
+    });
   }
 
   getPopup() {
-    this.api.get("popup").subscribe(
-      async (data: any) => {
-        console.log("popup message", data);
-        if (data && data.status === 200) {
-          const info = data.data[0];
-          const alertCtrl = await this.alertCtrl.create({
-            header: this.util.getString("Message"),
-            message: info.message,
-            mode: "ios",
-            buttons: [this.util.getString("Cancle"), this.util.getString("Ok")],
-          });
-          localStorage.setItem("pop", "true");
-          alertCtrl.present();
-        }
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-  }
+		this.api.get('popup').subscribe(
+			async (data: any) => {
+				console.log('popup message', data);
+				if (data && data.status === 200) {
+					const info = data.data[0];
+					const alertCtrl = await this.alertCtrl.create({
+						header: this.util.getString('Message'),
+						message: info.message,
+						mode: 'ios',
+						buttons: [this.util.getString('Cancle'), this.util.getString('Ok')],
+					});
+					localStorage.setItem('pop', 'true');
+					alertCtrl.present();
+				}
+			},
+			(error) => {
+				console.log(error);
+			}
+		);
+	} 
+
   getInit() {
+    this.util.show('أرجو الإنتظار');
     this.getCity();
     this.dummyCates = Array(5);
     this.dummyBanners = Array(5);
@@ -146,50 +157,36 @@ export class HomePage implements OnInit {
     this.topProducts = [];
     this.products = [];
     const param = {
-      id: localStorage.getItem("city"),
+      id: localStorage.getItem('city'),
     };
-    this.api.post("stores/getByCity", param).subscribe(
+    this.api.post('stores/getByCity', param).subscribe(
       (stores: any) => {
-        console.log("stores by city", stores);
+        console.log('stores by city', stores);
         this.stores = [];
-        if (
-          stores &&
-          stores.status === 200 &&
-          stores.data &&
-          stores.data.length
-        ) {
-          console.log("city found");
+
+        if (stores && stores.status === 200 && stores.data && stores.data.length) {
+          console.log('city found');
           this.stores = stores.data;
 
           this.stores.forEach(async (element) => {
-            element["isOpen"] = await this.isOpen(
-              element.open_time,
-              element.close_time
-            );
+            element['isOpen'] = await this.isOpen(element.open_time, element.close_time);
           });
-          console.log("store====>>>", this.stores);
+          console.log('store====>>>', this.stores);
           this.haveStores = true;
           this.getCategorys();
           this.getBanners();
 
           this.topProducts = [];
+          // this.dummyProducts = [];
           this.dummyTopProducts = Array(5);
-          this.api.post("products/getTopRated", param).subscribe(
+          this.api.post('products/getTopRated', param).subscribe(
             (data: any) => {
-              console.log("top products", data);
+              console.log('top products', data);
+              this.util.hide();
               this.dummyTopProducts = [];
-              if (
-                data &&
-                data.status === 200 &&
-                data.data &&
-                data.data.length
-              ) {
+              if (data && data.status === 200 && data.data && data.data.length) {
                 data.data.forEach((element) => {
-                  if (
-                    element.variations &&
-                    element.size === "1" &&
-                    element.variations !== ""
-                  ) {
+                  if (element.variations && element.size === '1' && element.variations !== '') {
                     if (
                       ((x) => {
                         try {
@@ -201,102 +198,102 @@ export class HomePage implements OnInit {
                       })(element.variations)
                     ) {
                       element.variations = JSON.parse(element.variations);
-                      element["variant"] = 0;
+                      element['variant'] = 0;
                     } else {
                       element.variations = [];
-                      element["variant"] = 1;
+                      element['variant'] = 1;
                     }
                   } else {
                     element.variations = [];
-                    element["variant"] = 1;
+                    element['variant'] = 1;
                   }
                   if (this.cart.itemId.includes(element.id)) {
-                    const index = this.cart.cart.filter(
-                      (x) => x.id === element.id
-                    );
-                    element["quantiy"] = index[0].quantiy;
+                    const index = this.cart.cart.filter((x) => x.id === element.id);
+                    element['quantiy'] = index[0].quantiy;
                   } else {
-                    element["quantiy"] = 0;
+                    element['quantiy'] = 0;
                   }
                   this.topProducts.push(element);
                 });
               }
+              this.ngZone.run(() => {
+                console.log('ngzoned');
+              });
             },
             (error) => {
               console.log(error);
               this.dummyTopProducts = [];
+              this.util.hide();
             }
           );
 
-          this.api.post("products/getHome", param).subscribe(
-            (data: any) => {
-              console.log("home products", data);
-              this.dummyTopProducts = [];
-              if (
-                data &&
-                data.status === 200 &&
-                data.data &&
-                data.data.length
-              ) {
-                data.data.forEach((element) => {
-                  if (
-                    element.variations &&
-                    element.size === "1" &&
-                    element.variations !== ""
-                  ) {
-                    if (
-                      ((x) => {
-                        try {
-                          JSON.parse(x);
-                          return true;
-                        } catch (e) {
-                          return false;
-                        }
-                      })(element.variations)
-                    ) {
-                      element.variations = JSON.parse(element.variations);
-                      element["variant"] = 0;
-                    } else {
-                      element.variations = [];
-                      element["variant"] = 1;
-                    }
-                  } else {
-                    element.variations = [];
-                    element["variant"] = 1;
-                  }
-                  if (this.cart.itemId.includes(element.id)) {
-                    const index = this.cart.cart.filter(
-                      (x) => x.id === element.id
-                    );
-                    element["quantiy"] = index[0].quantiy;
-                  } else {
-                    element["quantiy"] = 0;
-                  }
-                  this.topProducts.push(element);
-                });
-              }
-            },
-            (error) => {
-              this.dummyTopProducts = [];
-              console.log(error);
-            }
-          );
-
-          // this.api.post('products/getProductWithCity', param).subscribe((data: any) => {
-          //   console.log('getProductWithCity', data);
-          //   if (data && data.status === 200 && data.data && data.data.length) {
-          //     this.dummyProducts = data.data;
-          //   } else {
-          //     this.dummyProducts = []
+          // this.dummyTopProducts = [];
+          // this.api.post('products/getHome', param).subscribe(
+          //   (data: any) => {
+          //     console.log('home products', data);
+          //     this.dummyTopProducts = [];
+          //     if (data && data.status === 200 && data.data && data.data.length) {
+          //       data.data.forEach((element) => {
+          //         if (element.variations && element.size === '1' && element.variations !== '') {
+          //           if (
+          //             ((x) => {
+          //               try {
+          //                 JSON.parse(x);
+          //                 return true;
+          //               } catch (e) {
+          //                 return false;
+          //               }
+          //             })(element.variations)
+          //           ) {
+          //             element.variations = JSON.parse(element.variations);
+          //             element['variant'] = 0;
+          //           } else {
+          //             element.variations = [];
+          //             element['variant'] = 1;
+          //           }
+          //         } else {
+          //           element.variations = [];
+          //           element['variant'] = 1;
+          //         }
+          //         if (this.cart.itemId.includes(element.id)) {
+          //           const index = this.cart.cart.filter((x) => x.id === element.id);
+          //           element['quantiy'] = index[0].quantiy;
+          //         } else {
+          //           element['quantiy'] = 0;
+          //         }
+          //         this.topProducts.push(element);
+          //       });
+          //     }
+          //   },
+          //   (error) => {
+          //     this.dummyTopProducts = [];
+          //     console.log(error);
+          //     this.util.hide();
           //   }
-          // }, error => {
-          //   console.log(error);
-          //   this.dummyProducts = []
-          // });
+          // );
+
+          this.api.post('products/getProductWithCity', param).subscribe(
+            (data: any) => {
+              console.log('getProductWithCity', data);
+              if (data && data.status === 200 && data.data && data.data.length) {
+                this.dummyProducts = data.data;
+                this.ngZone.run(() => {
+                  console.log('ngzoned');
+                });
+              } else {
+                this.dummyProducts = [];
+              }
+            },
+            (error) => {
+              console.log(error);
+              this.dummyProducts = [];
+            }
+          );
+          this.util.hide();
         } else {
           this.haveStores = false;
           this.stores = [];
-          console.log("no city found");
+          console.log('no city found');
           this.dummyCates = [];
           this.dummyBanners = [];
           this.bottomDummy = [];
@@ -313,7 +310,7 @@ export class HomePage implements OnInit {
         }
       },
       (error) => {
-        console.log("error in get store by city", error);
+        console.log('error in get store by city', error);
         this.stores = [];
         this.haveStores = false;
         this.dummyCates = [];
@@ -328,15 +325,16 @@ export class HomePage implements OnInit {
         this.betweenBanners = [];
         this.topProducts = [];
         this.products = [];
-        this.util.errorToast(this.util.getString("Something went wrong"));
+        this.util.hide();
+        this.util.errorToast(this.util.getString('Something went wrong'));
         this.chMod.detectChanges();
       }
     );
   }
 
   isOpen(start, end) {
-    const format = "H:mm:ss";
-    const ctime = moment().format("HH:mm:ss");
+    const format = 'H:mm:ss';
+    const ctime = moment().format('HH:mm:ss');
     const time = moment(ctime, format);
     const beforeTime = moment(start, format);
     const afterTime = moment(end, format);
@@ -350,7 +348,7 @@ export class HomePage implements OnInit {
   getTime(time) {
     // const date = moment().format('DD-MM-YYYY');
     // return moment(date + ' ' + time).format('hh:mm a');
-    return moment(time, ["h:mm A"]).format("hh:mm A");
+    return moment(time, ['h:mm A']).format('hh:mm A');
   }
 
   addToCart(item, index) {
@@ -359,15 +357,15 @@ export class HomePage implements OnInit {
     this.cart.addItem(item);
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   whatsAppMessage() {
-    location.href = "https://wa.me/966583001241?text=Hello";
+    location.href = 'https://wa.me/966570120777?text=Hello';
   }
 
   getBanners() {
     this.dummyBanners = Array(5);
-    this.api.get("banners").subscribe(
+    this.api.get('banners').subscribe(
       (data: any) => {
         console.log(data);
         this.dummyBanners = [];
@@ -378,19 +376,19 @@ export class HomePage implements OnInit {
         this.banners = [];
         if (data && data.status === 200 && data.data && data.data.length) {
           data.data.forEach((element) => {
-            if (element && element.status === "1") {
-              if (element.position === "0") {
+            if (element && element.status === '1') {
+              if (element.position === '0') {
                 this.banners.push(element);
-              } else if (element.position === "1") {
+              } else if (element.position === '1') {
                 this.bottomBanners.push(element);
               } else {
                 this.betweenBanners.push(element);
               }
             }
           });
-          console.log("top", this.banners);
-          console.log("bottom", this.bottomBanners);
-          console.log("between", this.betweenBanners);
+          console.log('top', this.banners);
+          console.log('bottom', this.bottomBanners);
+          console.log('between', this.betweenBanners);
         }
       },
       (error) => {
@@ -406,28 +404,41 @@ export class HomePage implements OnInit {
   }
 
   async selectAddress() {
-    const modal = await this.modalController.create({
-      component: MapsPage,
-      cssClass: "my-custom-class",
-    });
-    await modal.present();
-    debugger
-    const { data } = await modal.onWillDismiss();
-    console.log(data);
-    if (data && data.location) {
-      this.address = data.location;
-    }
-    if (data && data.reload) {
-      this.getAddress();
-    }
-    if (data && data.login == true) {
+    const uid = localStorage.getItem('uid');
+    if (uid && uid != null && uid !== 'null') {
+      if (this.myaddress && this.myaddress.length > 0) {
+        this.util.showToast('تمت إضافة الموقع بالفعل', 'danger', 'bottom');
+      } else {
+        const modal = await this.modalController.create({
+          component: MapsPage,
+          cssClass: 'my-custom-class',
+          componentProps: {
+            fromHome: true,
+          },
+        });
+        await modal.present();
+        // debugger;
+        const { data } = await modal.onWillDismiss();
+        console.log(data);
+        if (data && data.location) {
+          this.address = data.location;
+        }
+        if (data && data.reload) {
+          this.getAddress();
+        }
+      }
+    } else {
       this.router.navigate(['/login']);
     }
   }
 
+  handleAddressChange() {
+    console.log('handleAddressChange');
+  }
+
   getCategorys() {
     this.dummyCates = Array(10);
-    this.api.get("categories").subscribe(
+    this.api.get('categories').subscribe(
       (datas: any) => {
         this.dummyCates = [];
         const cates = [];
@@ -436,7 +447,7 @@ export class HomePage implements OnInit {
             .slice()
             .reverse()
             .forEach((element) => {
-              if (element.status === "1") {
+              if (element.status === '1') {
                 const info = {
                   id: element.id,
                   name: element.name,
@@ -453,19 +464,17 @@ export class HomePage implements OnInit {
               }
             });
         }
+        this.ngZone.run(() => {
+          console.log('ngzoneddd');
+        });
 
-        this.api.get("subcate").subscribe(
+        this.api.get('subcate').subscribe(
           (subCates: any) => {
-            console.log("sub cates", subCates);
-            if (
-              subCates &&
-              subCates.status === 200 &&
-              subCates.data &&
-              subCates.data.length
-            ) {
+            console.log('sub cates', subCates);
+            if (subCates && subCates.status === 200 && subCates.data && subCates.data.length) {
               cates.forEach((element, i) => {
                 subCates.data.forEach((sub) => {
-                  if (sub.status === "1" && element.id === sub.cate_id) {
+                  if (sub.status === '1' && element.id === sub.cate_id) {
                     // this.categories[i].subCates.push(sub);
                     cates[i].subCates.push(sub);
                   }
@@ -474,16 +483,19 @@ export class HomePage implements OnInit {
               // console.log('=>>', this.categories);
               this.categories = cates;
             }
+            this.ngZone.run(() => {
+              console.log('ngzoneddd');
+            });
           },
           (error) => {
             console.log(error);
-            this.util.errorToast(this.util.getString("Something went wrong"));
+            this.util.errorToast(this.util.getString('Something went wrong'));
           }
         );
       },
       (error) => {
         console.log(error);
-        this.util.errorToast(this.util.getString("Something went wrong"));
+        this.util.errorToast(this.util.getString('Something went wrong'));
         this.dummyCates = [];
       }
     );
@@ -521,11 +533,11 @@ export class HomePage implements OnInit {
       },
     };
 
-    this.router.navigate(["tabs/home/product"], param);
+    this.router.navigate(['tabs/home/product'], param);
   }
 
   goToCatrgory() {
-    this.router.navigate(["/tabs/categories"]);
+    this.router.navigate(['/tabs/categories']);
   }
 
   subCate(item) {
@@ -535,21 +547,21 @@ export class HomePage implements OnInit {
         name: item.name,
       },
     };
-    this.router.navigate(["tabs/home/sub-category"], param);
+    this.router.navigate(['tabs/home/sub-category'], param);
   }
 
   changeCity() {
-    this.router.navigate(["cities"]);
+    this.router.navigate(['cities']);
   }
 
   openLink(item) {
     console.log(item);
 
-    if (item.type === "0") {
+    if (item.type === '0') {
       // Category
-      console.log("open category");
+      console.log('open category');
       const name = this.categories.filter((x) => x.id === item.link);
-      let cateName: any = "";
+      let cateName: any = '';
       if (name && name.length) {
         cateName = name[0].name;
       }
@@ -559,21 +571,21 @@ export class HomePage implements OnInit {
           name: cateName,
         },
       };
-      this.router.navigate(["tabs/home/sub-category"], param);
-    } else if (item.type === "1") {
+      this.router.navigate(['tabs/home/sub-category'], param);
+    } else if (item.type === '1') {
       // product
-      console.log("open product");
+      console.log('open product');
       const param: NavigationExtras = {
         queryParams: {
           id: item.link,
         },
       };
 
-      this.router.navigate(["tabs/categories/product"], param);
+      this.router.navigate(['tabs/categories/product'], param);
     } else {
       // link
-      console.log("open link");
-      this.iab.create(item.link, "_blank");
+      console.log('open link');
+      this.iab.create(item.link, '_blank');
     }
   }
 
@@ -584,7 +596,7 @@ export class HomePage implements OnInit {
         name: val.name,
       },
     };
-    this.router.navigate(["/tabs/categories/products"], navData);
+    this.router.navigate(['/tabs/categories/products'], navData);
   }
 
   onSearchChange(event) {
@@ -595,39 +607,39 @@ export class HomePage implements OnInit {
   }
 
   getCity() {
-    const city = localStorage.getItem("city");
-    console.log("selected city===>>", city);
-    if (city && city !== null && city !== "null") {
+    const city = localStorage.getItem('city');
+    console.log('selected city===>>', city);
+    if (city && city !== null && city !== 'null') {
       const param = {
         id: city,
       };
 
-      this.api.post("cities/getById", param).subscribe(
+      this.api.post('cities/getById', param).subscribe(
         (data: any) => {
-          console.log("selected city", data);
+          console.log('selected city', data);
           if (data && data.status === 200 && data.data && data.data.length) {
-            const selectedCity = data.data.filter((x) => x.status === "1");
-            console.log("selected city=======================", selectedCity);
+            const selectedCity = data.data.filter((x) => x.status === '1');
+            console.log('selected city=======================', selectedCity);
             if (selectedCity && selectedCity.length) {
               this.util.city = selectedCity[0];
               this.chMod.detectChanges();
             } else {
-              localStorage.removeItem("city");
+              localStorage.removeItem('city');
             }
           } else {
-            localStorage.removeItem("city");
+            localStorage.removeItem('city');
           }
         },
         (error) => {
           console.log(error);
-          localStorage.removeItem("city");
+          localStorage.removeItem('city');
         }
       );
     }
   }
 
   openStore(item) {
-    console.log("open store", item);
+    console.log('open store', item);
 
     const param: NavigationExtras = {
       queryParams: {
@@ -635,41 +647,41 @@ export class HomePage implements OnInit {
         name: item.name,
       },
     };
-    this.router.navigate(["tabs/home/store"], param);
+    this.router.navigate(['tabs/home/store'], param);
   }
 
   topicked() {
-    this.router.navigate(["/tabs/home/top-picked"]);
+    this.router.navigate(['/tabs/home/top-picked']);
   }
 
   topStores() {
-    this.router.navigate(["top-stores"]);
+    this.router.navigate(['top-stores']);
   }
 
   allOffers() {
-    this.router.navigate(["all-offers"]);
+    this.router.navigate(['all-offers']);
   }
 
   search(event: string) {
     console.log(event);
-    if (event && event !== "") {
+    if (event && event !== '') {
       const param = {
-        id: localStorage.getItem("city"),
+        id: localStorage.getItem('city'),
         search: event,
       };
       this.util.show();
-      this.api.post("products/getSearchItems", param).subscribe(
+      this.api.post('products/getSearchItems', param).subscribe(
         (data: any) => {
-          console.log("search data==>", data);
+          console.log('search data==>', data);
           this.util.hide();
           if (data && data.status === 200 && data.data) {
             this.products = data.data;
           }
         },
         (error) => {
-          console.log("error in searhc filess--->>", error);
+          console.log('error in searhc filess--->>', error);
           this.util.hide();
-          this.util.errorToast(this.util.getString("Something went wrong"));
+          this.util.errorToast(this.util.getString('Something went wrong'));
         }
       );
     }
@@ -678,46 +690,30 @@ export class HomePage implements OnInit {
   async variant(item, indeX) {
     console.log(item);
     const allData = [];
-    console.log(item && item.variations !== "");
-    console.log(item && item.variations !== "" && item.variations.length > 0);
-    console.log(
-      item &&
-      item.variations !== "" &&
-      item.variations.length > 0 &&
-      item.variations[0].items.length > 0
-    );
-    if (
-      item &&
-      item.variations !== "" &&
-      item.variations.length > 0 &&
-      item.variations[0].items.length > 0
-    ) {
-      console.log("->", item.variations[0].items);
+    console.log(item && item.variations !== '');
+    console.log(item && item.variations !== '' && item.variations.length > 0);
+    console.log(item && item.variations !== '' && item.variations.length > 0 && item.variations[0].items.length > 0);
+    if (item && item.variations !== '' && item.variations.length > 0 && item.variations[0].items.length > 0) {
+      console.log('->', item.variations[0].items);
       item.variations[0].items.forEach((element, index) => {
-        console.log("OK");
-        let title = "";
-        if (this.util.cside === "left") {
+        console.log('OK');
+        let title = '';
+        if (this.util.cside === 'left') {
           const price =
-            item.variations &&
-              item.variations[0] &&
-              item.variations[0].items[index] &&
-              item.variations[0].items[index].discount
+            item.variations && item.variations[0] && item.variations[0].items[index] && item.variations[0].items[index].discount
               ? item.variations[0].items[index].discount
               : item.variations[0].items[index].price;
-          title = element.title + " - " + this.util.currecny + " " + price;
+          title = element.title + ' - ' + this.util.currecny + ' ' + price;
         } else {
           const price =
-            item.variations &&
-              item.variations[0] &&
-              item.variations[0].items[index] &&
-              item.variations[0].items[index].discount
+            item.variations && item.variations[0] && item.variations[0].items[index] && item.variations[0].items[index].discount
               ? item.variations[0].items[index].discount
               : item.variations[0].items[index].price;
-          title = element.title + " - " + price + " " + this.util.currecny;
+          title = element.title + ' - ' + price + ' ' + this.util.currecny;
         }
         const data = {
           name: element.title,
-          type: "radio",
+          type: 'radio',
           label: title,
           value: index,
           checked: item.variant === index,
@@ -725,26 +721,26 @@ export class HomePage implements OnInit {
         allData.push(data);
       });
 
-      console.log("All Data", allData);
+      console.log('All Data', allData);
       const alert = await this.alertCtrl.create({
         header: item.name,
         inputs: allData,
         buttons: [
           {
-            text: this.util.getString("Cancel"),
-            role: "cancel",
-            cssClass: "secondary",
+            text: this.util.getString('Cancel'),
+            role: 'cancel',
+            cssClass: 'secondary',
             handler: () => {
-              console.log("Confirm Cancel");
+              console.log('Confirm Cancel');
             },
           },
           {
-            text: this.util.getString("Ok"),
+            text: this.util.getString('Ok'),
             handler: (data) => {
-              console.log("Confirm Ok", data);
-              console.log("before", this.topProducts[indeX].variant);
+              console.log('Confirm Ok', data);
+              console.log('before', this.topProducts[indeX].variant);
               this.topProducts[indeX].variant = data;
-              console.log("after", this.topProducts[indeX].variant);
+              console.log('after', this.topProducts[indeX].variant);
             },
           },
         ],
@@ -752,28 +748,67 @@ export class HomePage implements OnInit {
 
       await alert.present();
     } else {
-      console.log("none");
+      console.log('none');
     }
   }
   getAddress() {
+    const uid = localStorage.getItem('uid');
     const param = {
-      id: localStorage.getItem("uid"),
+      id: localStorage.getItem('uid'),
     };
+
     this.myaddress = [];
-    this.api.post("address/getByUid", param).subscribe(
-      (data: any) => {
-        console.log(data);
-        if (data && data.status === 200 && data.data.length) {
-          this.myaddress = data.data;
+    if (uid) {
+      this.api.post('address/getByUid', param).subscribe(
+        (data: any) => {
+          console.log(data);
+          if (data && data.status === 200 && data.data.length) {
+            this.myaddress = data.data;
+          }
+          console.log('this.myaddress', this.myaddress);
+
+          let selectedAddress: any = localStorage.getItem('address');
+          console.log('selectedAddress', selectedAddress);
+
+          if (selectedAddress) {
+            console.log(this.myaddress);
+            selectedAddress = this.myaddress.filter((item) => item.id == selectedAddress);
+            console.log('selectedAddress--', selectedAddress);
+
+            this.optionSelected = selectedAddress[0].id;
+            this.cart.deliveryAddress = selectedAddress[0];
+            // this.optionSelected =
+          } else {
+            if (this.myaddress && this.myaddress.length) {
+              selectedAddress = this.myaddress[0];
+              console.log('selectedAddress', selectedAddress);
+
+              this.optionSelected = selectedAddress.id;
+              localStorage.setItem('address', selectedAddress.id);
+              this.cart.deliveryAddress = selectedAddress;
+            }
+            // if (this.myaddress) {
+            // }
+          }
+          // localStorage.setItem('address', JSON.stringify(addr.id));
+        },
+        (error) => {
+          console.log(error);
+          this.util.errorToast(this.util.getString('Something went wrong'));
         }
-      },
-      (error) => {
-        console.log(error);
-        this.util.errorToast(this.util.getString("Something went wrong"));
-      }
-    );
+      );
+    }
   }
   getAddressList() {
+    this.isAddressOpen = !this.isAddressOpen;
+  }
+
+  setAddressList(addr) {
+    console.log(addr);
+
+    this.optionSelected = addr.id;
+    localStorage.setItem('address', addr.id);
+    this.cart.deliveryAddress = addr;
     this.isAddressOpen = !this.isAddressOpen;
   }
 }

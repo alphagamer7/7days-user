@@ -29,6 +29,7 @@ export class RegisterPage implements OnInit {
   }
   fname: any = '';
   lname: any = '';
+  age: any = '';
   mobile: any = 'test';
   gender: any = '1';
   email: any = '';
@@ -81,7 +82,7 @@ export class RegisterPage implements OnInit {
       this.util.showToast(this.util.getString('Please accept terms and conditions'), 'dark', 'bottom');
       return false;
     }
-    if (!this.fname || !this.lname || !this.mobile || !this.email || !this.password || this.ccCode === '' || !this.ccCode) {
+    if (!this.fname || !this.mobile || !this.email || !this.password || this.ccCode === '' || !this.ccCode) {
       this.util.showToast(this.util.getString('All Fields are required'), 'dark', 'bottom');
       return false;
     }
@@ -98,6 +99,7 @@ export class RegisterPage implements OnInit {
     const param = {
       first_name: this.fname,
       last_name: this.lname,
+      age: this.age,
       email: this.email,
       password: this.password,
       gender: this.gender,

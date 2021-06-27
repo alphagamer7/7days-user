@@ -8,100 +8,123 @@
   Copyright and Good Faith Purchasers � 2020-present initappz.
  -->
 <ion-header mode="ios" class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button (click)="back()">
-        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title> {{util.getString('Checkout')}} </ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-button (click)="back()">
+                <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title> {{util.getString('Checkout')}} </ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="coupones" (click)="openCoupon()">
-    <img src="assets/imgs/discount.png" class="badge" />
-    <ion-label class="title"
-      >{{util.getString('Apply coupon code')}} <br />
-      <p *ngIf="cart.coupon">{{util.getString('Coupon Applied')}}</p>
-    </ion-label>
-  </div>
+    <!--  <div class="coupones" (click)="openCoupon()">
+        <img src="assets/imgs/discount.png" class="badge" />
+        <ion-label class="title">{{util.getString('Apply coupon code')}} <br />
+            <p *ngIf="cart.coupon">{{util.getString('Coupon Applied')}}</p>
+        </ion-label>
+    </div> -->
+    <ion-item class="ion-margin-top ion-margin-bottom">
+        <ion-input type="text" placeholder="أدخل رمز القسيمة
+" [(ngModel)]="couponCode"></ion-input>
+        <ion-button slot="end" (click)="addCoupon()" color="primary">{{util.getString('أدخل')}}</ion-button>
+    </ion-item>
 
-  <div class="billing">
-    <div class="singleRow">
-      <ion-label class="headerTitle">
-        {{util.getString('Item Total')}}
-      </ion-label>
-      <ion-label class="price">
-        <span *ngIf="util.cside ==='left'">
-          {{util.currecny}} {{cart.totalPrice}}</span
-        >
-        <span *ngIf="util.cside ==='right'"
-          >{{cart.totalPrice}} {{util.currecny}}
-        </span>
-      </ion-label>
-    </div>
+    <!--  <ion-list [hidden]="couponList.length == 0">
+        <ion-item *ngFor="let item of couponList" (click)="selectCoupun(item)">
+            <ion-thumbnail slot="start">
+                <img [src]="api.mediaURL+item.image" onError="this.src='assets/imgs/user.png'" />
+            </ion-thumbnail>
+            <p class="couponDesc">
+                <span class="code">
+					{{util.getString('Use coupon code')}} {{item.name}}
+				</span>
+                <br />
+                <span class="desc"> {{item.descriptions}} </span> <br />
+                <span class="desc">
+					{{util.getString('Valid until')}} {{getTime(item.date_time)}}
+				</span>
+                <br />
+            </p>
+        </ion-item>
+    </ion-list>  -->
 
-    <div class="singleRow" *ngIf="cart.coupon">
-      <ion-label class="headerTitle">
-        {{util.getString('Discount')}}
-      </ion-label>
-      <ion-label class="price">
-        <span *ngIf="util.cside ==='left'">
-          {{util.currecny}} {{cart.discount}}</span
-        >
-        <span *ngIf="util.cside ==='right'"
-          >{{cart.discount}} {{util.currecny}}
-        </span>
-      </ion-label>
-    </div>
+    <div class="billing">
+        <div class="singleRow">
+            <ion-label class="headerTitle">
+                {{util.getString('Item Total')}}
+            </ion-label>
+            <ion-label class="price">
+                <span *ngIf="util.cside ==='left'">
+					{{util.currecny}} {{cart.totalPrice}}</span
+				>
+				<span *ngIf="util.cside ==='right'"
+					>{{cart.totalPrice}} {{util.currecny}}
+				</span>
+            </ion-label>
+        </div>
 
-    <div class="singleRow">
-      <ion-label class="headerTitle">
-        {{util.getString('Taxes & Charges')}}
-      </ion-label>
-      <ion-label class="price">
-        <span *ngIf="util.cside ==='left'">
-          {{util.currecny}} {{cart.orderTax}}</span
-        >
-        <span *ngIf="util.cside ==='right'"
-          >{{cart.orderTax}} {{util.currecny}}
-        </span>
-      </ion-label>
-    </div>
+        <div class="singleRow" *ngIf="cart.coupon">
+            <ion-label class="headerTitle">
+                {{util.getString('Discount')}}
+            </ion-label>
+            <ion-label class="price">
+                <span *ngIf="util.cside ==='left'">
+					{{util.currecny}} {{cart.discount}}</span
+				>
+				<span *ngIf="util.cside ==='right'"
+					>{{cart.discount}} {{util.currecny}}
+				</span>
+            </ion-label>
+        </div>
 
-    <div class="singleRow">
-      <ion-label class="headerTitle">
-        {{util.getString('Delivery Charges')}}
-      </ion-label>
-      <ion-label class="price">
-        <span *ngIf="util.cside ==='left'">
-          {{util.currecny}} {{cart.deliveryPrice}}</span
-        >
-        <span *ngIf="util.cside ==='right'"
-          >{{cart.deliveryPrice}} {{util.currecny}}
-        </span>
-      </ion-label>
-    </div>
+        <div class="singleRow">
+            <ion-label class="headerTitle">
+                {{util.getString('Taxes & Charges')}}
+            </ion-label>
+            <ion-label class="price">
+                <span *ngIf="util.cside ==='left'">
+					{{util.currecny}} {{cart.orderTax}}</span
+				>
+				<span *ngIf="util.cside ==='right'"
+					>{{cart.orderTax}} {{util.currecny}}
+				</span>
+            </ion-label>
+        </div>
 
-    <div class="singleRow">
-      <ion-label class="headerTotal boldClass">
-        {{util.getString('Grand Total')}}
-      </ion-label>
-      <ion-label class="priceTotal boldClass">
-        <span *ngIf="util.cside ==='left'">
-          {{util.currecny}} {{cart.grandTotal}}</span
-        >
-        <span *ngIf="util.cside ==='right'"
-          >{{cart.grandTotal}} {{util.currecny}}
-        </span>
-      </ion-label>
+        <div class="singleRow">
+            <ion-label class="headerTitle">
+                {{util.getString('Delivery Charges')}}
+            </ion-label>
+            <ion-label class="price">
+                <span *ngIf="util.cside ==='left'">
+					{{util.currecny}} {{cart.deliveryPrice}}</span
+				>
+				<span *ngIf="util.cside ==='right'"
+					>{{cart.deliveryPrice}} {{util.currecny}}
+				</span>
+            </ion-label>
+        </div>
+
+        <div class="singleRow">
+            <ion-label class="headerTotal boldClass">
+                {{util.getString('Grand Total')}}
+            </ion-label>
+            <ion-label class="priceTotal boldClass">
+                <span *ngIf="util.cside ==='left'">
+					{{util.currecny}} {{cart.grandTotal}}</span
+				>
+				<span *ngIf="util.cside ==='right'"
+					>{{cart.grandTotal}} {{util.currecny}}
+				</span>
+            </ion-label>
+        </div>
     </div>
-  </div>
-  <div class="header">
-    <ion-label class="title"> {{util.getString('Payment with')}} </ion-label>
-  </div>
-  <!-- <ion-item (click)="openStripe()" lines="none" *ngIf="havePayment && haveStripe">
+    <div class="header">
+        <ion-label class="title"> {{util.getString('Payment with')}} </ion-label>
+    </div>
+    <!-- <ion-item (click)="openStripe()" lines="none" *ngIf="havePayment && haveStripe">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/stripe.png" />
     </ion-thumbnail>
@@ -109,31 +132,23 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
 
-  <ion-item
-    (click)="createOrder('cod')"
-    lines="none"
-    *ngIf="havePayment && haveCOD"
-  >
-    <ion-thumbnail slot="start">
-      <img src="assets/imgs/cod.png" />
-    </ion-thumbnail>
-    <ion-label> {{util.getString('Cash on Delivery')}} </ion-label>
-    <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
-  </ion-item>
+    <ion-item (click)="createOrder('cod')" lines="none" *ngIf="havePayment && haveCOD">
+        <ion-thumbnail slot="start">
+            <img src="assets/imgs/cod.png" />
+        </ion-thumbnail>
+        <ion-label> {{util.getString('Cash on Delivery')}} </ion-label>
+        <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
+    </ion-item>
 
-  <ion-item
-    (click)="createOrder('bank')"
-    lines="none"
-    *ngIf="havePayment && haveCOD"
-  >
-    <ion-thumbnail slot="start">
-      <img src="assets/imgs/card.png" />
-    </ion-thumbnail>
-    <ion-label> {{util.getString('Cash by ATM')}} </ion-label>
-    <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
-  </ion-item>
+    <ion-item (click)="createOrder('bank')" lines="none" *ngIf="havePayment && haveCOD">
+        <ion-thumbnail slot="start">
+            <img src="assets/imgs/card.png" />
+        </ion-thumbnail>
+        <ion-label> {{util.getString('Cash by ATM')}} </ion-label>
+        <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
+    </ion-item>
 
-  <!-- <ion-item (click)="paypalPayment()" lines="none" *ngIf="havePayment && havePayPal">
+    <!-- <ion-item (click)="paypalPayment()" lines="none" *ngIf="havePayment && havePayPal">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/paypal.png" />
     </ion-thumbnail>
@@ -141,7 +156,7 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
 
-  <!-- <ion-item (click)="paytm()" lines="none" *ngIf="havePayment && havePayTM">
+    <!-- <ion-item (click)="paytm()" lines="none" *ngIf="havePayment && havePayTM">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/paytm.png" />
     </ion-thumbnail>
@@ -149,7 +164,7 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
 
-  <!-- <ion-item (click)="instaPay()" lines="none" *ngIf="havePayment && haveInstamojo">
+    <!-- <ion-item (click)="instaPay()" lines="none" *ngIf="havePayment && haveInstamojo">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/instamojoapp.png" />
     </ion-thumbnail>
@@ -157,14 +172,14 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
 
-  <!-- <ion-item (click)="proceed()" lines="none" *ngIf="havePayment && haveRazor">
+    <!-- <ion-item (click)="proceed()" lines="none" *ngIf="havePayment && haveRazor">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/razor.png" />
     </ion-thumbnail>
     <ion-label> {{util.getString('Pay with RazorPay')}} </ion-label>
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
-  <!-- 
+    <!-- 
   <ion-item (click)="paystackPay()" lines="none" *ngIf="havePayment && havepayStack">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/paystack.png" />
@@ -173,7 +188,7 @@
     <ion-icon mode="ios" name="arrow-forward-outline" slot="end"></ion-icon>
   </ion-item> -->
 
-  <!-- <ion-item (click)="flutterpay()" lines="none" *ngIf="havePayment && havepayStack">
+    <!-- <ion-item (click)="flutterpay()" lines="none" *ngIf="havePayment && havepayStack">
     <ion-thumbnail slot="start">
       <img src="assets/imgs/flutter.png" />
     </ion-thumbnail>

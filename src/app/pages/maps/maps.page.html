@@ -5,11 +5,6 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button (click)="selectAddress()">
-        <ion-label>حفظ</ion-label>
-      </ion-button>
-    </ion-buttons>
     <ion-title> {{'التوصيل إلى المنزل'}} </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -43,49 +38,37 @@
   <div class="bottom-container">
     <div class="address-cntr">
       <div>
-        <h3>{{getMinifiedAddress()}}</h3>
+        <h3>{{map_model.minifiedAddress}}</h3>
         <p>{{map_model.search_query}}</p>
       </div>
     </div>
     <div class="inner-container">
       <ion-button expand="block" [hidden]="!isOptionHidden" (click)="showAddressOptions()">
-        <span>Select</span>
+        <span>اختيار</span>
       </ion-button>
       <div [hidden]="isOptionHidden" class="hd" style="display: none">
         <ion-item>
-          <ion-textarea [(ngModel)]="description" placeholder="مثال للون البيت بني قدام مسجد ابيض"></ion-textarea>
+          <ion-textarea [(ngModel)]="description" placeholder="اكتب عنوان بيتك هنا"></ion-textarea>
         </ion-item>
 
         <ion-list>
           <ion-radio-group (ionChange)="radioGroupChange($event)">
             <ion-item>
-              <ion-label slot="end">Home</ion-label>
+              <ion-label slot="end">المنزل</ion-label>
               <ion-icon slot="end" name="home-outline"></ion-icon>
-              <ion-radio slot="end" value="home"></ion-radio>
+              <ion-radio slot="end" value="المنزل"></ion-radio>
             </ion-item>
 
             <ion-item>
-              <ion-label slot="end">Work</ion-label>
+              <ion-label slot="end">العمل</ion-label>
               <ion-icon name="build-outline" slot="end"></ion-icon>
-              <ion-radio slot="end" value="work"></ion-radio>
-            </ion-item>
-
-            <ion-item>
-              <ion-label slot="end">HangOut</ion-label>
-              <ion-icon slot="end" name="wine-outline"></ion-icon>
-              <ion-radio slot="end" value="hangout"></ion-radio>
-            </ion-item>
-
-            <ion-item>
-              <ion-label slot="end">Camp</ion-label>
-              <ion-icon name="earth-outline" slot="end"></ion-icon>
-              <ion-radio slot="end" value="camp"></ion-radio>
+              <ion-radio slot="end" value="العمل"></ion-radio>
             </ion-item>
           </ion-radio-group>
         </ion-list>
       </div>
       <ion-button class="bdn" style="display: none" expand="block" (click)="addNewAddress()" [hidden]="isOptionHidden">
-        <span>Done</span>
+        <span>تم</span>
       </ion-button>
     </div>
   </div>

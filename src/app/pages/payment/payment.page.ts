@@ -47,8 +47,14 @@ export class PaymentPage implements OnInit {
   };
   haveRazor: boolean;
   razorKey: any;
+  dummy: any[];
+  dummyList: any;
+  couponList: any = [];
+  searchName: string;
+  couponCode = '';
   constructor(private router: Router, private navCtrl: NavController, public cart: CartService, public util: UtilService, public api: ApiService, private iab: InAppBrowser) {
     console.log('delivery at', this.cart.deliveryAt);
+    this.getCoupons();
     this.util.getCouponObservable().subscribe(
       (data) => {
         console.log(data);
@@ -59,6 +65,7 @@ export class PaymentPage implements OnInit {
         console.log(error);
       }
     );
+
     this.getPayments();
   }
 
@@ -197,6 +204,7 @@ export class PaymentPage implements OnInit {
   back() {
     this.navCtrl.back();
   }
+
   openCoupon() {
     this.router.navigate(['offers']);
   }
@@ -221,6 +229,10 @@ export class PaymentPage implements OnInit {
         time: moment().format('lll'),
       },
     ];
+    console.log('cart items');
+    console.log(this.cart.cart);
+    console.log('end cart');
+
     const param = {
       uid: localStorage.getItem('uid'),
       store_id: storeId.join(),
@@ -243,7 +255,8 @@ export class PaymentPage implements OnInit {
     };
 
     console.log('param----->', param);
-
+    // ["47"]
+    // const store = ['47'];
     this.util.show();
     this.api.post('orders/save', param).subscribe(
       (data: any) => {
@@ -252,6 +265,7 @@ export class PaymentPage implements OnInit {
         this.api.createOrderNotification(this.cart.stores);
         this.cart.clearCart();
         this.util.publishNewOrder();
+        this.util.showToast('تم وضع الطلب بنجاح', 'primary', 'bottom');
         this.navCtrl.navigateRoot(['/tabs/orders'], {
           replaceUrl: true,
           skipLocationChange: true,
@@ -550,5 +564,86 @@ export class PaymentPage implements OnInit {
         }
         this.util.showToast(this.util.getString('Something went wrong'), 'danger', 'bottom');
       });
+  }
+
+  //coupon drop down
+
+  getCoupons() {
+    // this.dummy = Array(5);
+    this.api.get('offers').subscribe(
+      (data: any) => {
+        console.log(data);
+        this.dummy = [];
+        if (data && data.status === 200 && data.data && data.data.length) {
+          const info = data.data.filter((x) => x.status === '1');
+          this.couponList = info;
+          this.dummyList = info;
+          console.log('coupons', this.couponList);
+        }
+      },
+      (error) => {
+        console.log(error);
+        this.util.errorToast(this.util.getString('Something went wrong'));
+      }
+    );
+  }
+
+  addCoupon() {
+    let couponExist = false;
+    let item = null;
+    if (this.couponCode) {
+      this.couponList.forEach((e) => {
+        if (this.couponCode.toLowerCase() === e.name.toLowerCase()) {
+          couponExist = true;
+          item = e;
+        }
+      });
+    }
+    if (!couponExist) {
+      this.util.showToast('رقم قسيمه غير صالح', 'danger', 'bottom');
+    } else {
+      this.selectCoupun(item);
+    }
+  }
+
+  /* searchCoupon() {
+		this.resetChanges();
+		if (!(this.searchName === '')) {
+			this.getCoupons();
+			const searchResult = this.couponList.filter((currentList) => {
+				if (currentList.name && this.searchName) {
+					return (
+						currentList.name
+							.toLowerCase()
+							.indexOf(this.searchName.toLowerCase()) > -1
+					);
+				}
+			});
+			this.couponList = searchResult;
+		}
+	}
+
+	resetChanges() {
+		this.couponList = [];
+	} */
+  selectCoupun(item) {
+    console.log(item);
+    const min = parseFloat(item.min);
+    if (this.cart.totalPrice >= min) {
+      this.cart.coupon = item;
+      this.util.showToast('كود قسيمة صالح', 'primary', 'bottom');
+      this.util.publishCoupon(item);
+    } else {
+      console.log('not valid with minimum amout', min);
+      this.util.showToast(
+        this.util.getString('Sorry') + '\n' + this.util.getString('minimum cart value must be') + ' ' + min + ' ' + this.util.getString('or equal'),
+        'danger',
+        'bottom'
+      );
+    }
+  }
+
+  getTime(time) {
+    return moment(time).format('LLLL');
   }
 }

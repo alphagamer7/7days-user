@@ -12,6 +12,7 @@ import { NavController } from '@ionic/angular';
 import { ApiService } from 'src/app/services/api.service';
 import { UtilService } from 'src/app/services/util.service';
 import { CartService } from 'src/app/services/cart.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-cities',
@@ -23,37 +24,36 @@ export class CitiesPage implements OnInit {
   cities: any[] = [];
   id: any;
   clicked: boolean;
-  constructor(
-    public api: ApiService,
-    public util: UtilService,
-    private navCtrl: NavController,
-    public cart: CartService
-  ) {
-    this.clicked = false;
-    const id = localStorage.getItem('city');
-    if (id && id !== null && id !== 'null') {
-      this.id = id;
-    }
-    this.getCities();
+  constructor(public api: ApiService, public util: UtilService, private navCtrl: NavController, public cart: CartService, private route: ActivatedRoute) {
+    this.route.queryParams.subscribe((params) => {
+      this.clicked = false;
+      const id = localStorage.getItem('city');
+      if (id && id !== null && id !== 'null') {
+        this.id = id;
+      }
+      this.getCities();
+    });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   getCities() {
-    this.api.get('cities').subscribe((data: any) => {
-      console.log(data);
-      this.dummy = [];
-      if (data && data.status === 200 && data.data && data.data.length) {
-        this.cities = data.data.filter(x => x.status === '1');
-      } else {
-        this.util.errorToast(this.util.getString('No Cities Found'));
+    this.api.get('cities').subscribe(
+      (data: any) => {
+        console.log(data);
+        this.dummy = [];
+        if (data && data.status === 200 && data.data && data.data.length) {
+          this.cities = data.data.filter((x) => x.status === '1');
+        } else {
+          this.util.errorToast(this.util.getString('No Cities Found'));
+        }
+      },
+      (error) => {
+        console.log('error', error);
+        this.dummy = [];
+        this.util.errorToast(this.util.getString('Something went wrong'));
       }
-    }, error => {
-      console.log('error', error);
-      this.dummy = [];
-      this.util.errorToast(this.util.getString('Something went wrong'));
-    });
+    );
   }
 
   ionViewDidEnter() {
@@ -64,7 +64,7 @@ export class CitiesPage implements OnInit {
     console.log('id', this.id);
     this.clicked = true;
     localStorage.setItem('city', this.id);
-    const city = this.cities.filter(x => x.id === this.id);
+    const city = this.cities.filter((x) => x.id === this.id);
     this.util.city = city[0];
     this.util.publishCity(city);
     this.cart.cart = [];

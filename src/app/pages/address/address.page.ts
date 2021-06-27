@@ -89,6 +89,7 @@ export class AddressPage implements OnInit {
     if (this.from === 'cart') {
       const selecte = this.myaddress.filter((x) => x.id === this.selectedAddress);
       const item = selecte[0];
+      localStorage.setItem('address', item.id);
       console.log('item', item);
       this.cart.deliveryAddress = item;
       this.cart.calcuate();

@@ -7,13 +7,44 @@
   terms found in the Website https://initappz.com/license
   Copyright and Good Faith Purchasers © 2020-present initappz.
 */
-.couponDesc{
+
+.couponDesc {
     margin: 0px;
-    .code{
+    .code {
         font-weight: bold;
         font-size: 14px;
     }
-    .desc{
+    .desc {
         font-size: 12px;
     }
+}
+
+.cpoun_row {
+    border: 1px solid #cecece;
+    padding: 0px 0 0px 5px;
+    border-radius: 5px;
+}
+
+.coupon_img {
+    padding: 5px 2px;
+}
+
+.Coupon_cod_d {
+    padding: 10px 6px;
+}
+
+.Code_input {
+    border: 0px;
+    width: 100%;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.add_div {
+    background: primary;
+    color: #fff;
+    font-size: 16px;
+    padding: 6px 0;
+    text-align: center;
+    border-radius: 0 5px 5px 0;
 }

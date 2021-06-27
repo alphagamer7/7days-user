@@ -1,31 +1,23 @@
-import { Component, ElementRef, NgZone, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, NgZone, OnInit, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, Platform } from "@ionic/angular";
+import { ModalController, Platform } from '@ionic/angular';
 import { UtilService } from 'src/app/services/util.service';
 import { ApiService } from 'src/app/services/api.service';
 import { GoogleMapsService } from './map.service';
-import {
-  NativeGeocoder,
-  NativeGeocoderResult,
-  NativeGeocoderOptions,
-} from "@ionic-native/native-geocoder/ngx";
-import { AndroidPermissions } from "@ionic-native/android-permissions/ngx";
-import {
-  Geolocation,
-  GeolocationOptions,
-  Geoposition,
-  PositionError,
-} from "@ionic-native/geolocation/ngx";
-import { Diagnostic } from "@ionic-native/diagnostic/ngx";
+import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { Geolocation, GeolocationOptions, Geoposition, PositionError } from '@ionic-native/geolocation/ngx';
+import { Diagnostic } from '@ionic-native/diagnostic/ngx';
 declare var google;
 
 @Component({
-  selector: "app-maps",
-  templateUrl: "./maps.page.html",
-  styleUrls: ["./maps.page.scss"],
+  selector: 'app-maps',
+  templateUrl: './maps.page.html',
+  styleUrls: ['./maps.page.scss'],
 })
 export class MapsPage implements OnInit, AfterViewInit {
-  @ViewChild("mapSe", { static: true }) mapEle: ElementRef;
+  @ViewChild('mapSe', { static: true }) mapEle: ElementRef;
+  @Input() fromHome: boolean;
   map: any;
   map_model: any;
   geocoder: any;
@@ -36,6 +28,7 @@ export class MapsPage implements OnInit, AfterViewInit {
   isOptionHidden: boolean = true;
   title: any;
   description: any = '';
+  minifiedAddressVal;
   constructor(
     // private geolocationProvider: Geolocation,
     public geolocation: Geolocation,
@@ -55,10 +48,10 @@ export class MapsPage implements OnInit, AfterViewInit {
     // this.ngZone = ngZone;
     // this.mapService = mapService;
     this.map_model = {
-      search_query: "",
+      search_query: '',
       search_places_predictions: [],
       using_geolocation: false,
-      minifiedAddress: ""
+      minifiedAddress: '',
     };
     this.isOptionHidden = true;
     // this.geocoder = new google.maps.Geocoder();
@@ -79,16 +72,15 @@ export class MapsPage implements OnInit, AfterViewInit {
         this.initialize();
       })
       .catch((error) => {
-        console.log("Error getting location", error);
+        console.log('Error getting location', error);
       });
   }
   ngOnInit() {
-    console.log("logged");
-    // setTimeout(() => {
-    // this.getCurrentLocation();
-    // }, 1000);
+    console.log('logged');
+    console.log('fromHome', this.fromHome);
+
     this.getLocation();
-    document.getElementById("map").style.height = this.platform.height() - 62 + 'px';
+    document.getElementById('map').style.height = this.platform.height() - 62 + 'px';
   }
 
   ngAfterViewInit() {
@@ -138,7 +130,7 @@ export class MapsPage implements OnInit, AfterViewInit {
       raiseOnDrag: false,
     });
     this.marker.setIcon(this.createIcon());
-    google.maps.event.addListener(this.marker, "dragend", () => {
+    google.maps.event.addListener(this.marker, 'dragend', () => {
       this.geocodePosition(this.marker.getPosition());
     });
   }
@@ -183,25 +175,25 @@ export class MapsPage implements OnInit, AfterViewInit {
         this.address = result;
         this.map_model.search_query = result.formatted_address;
         this.map_model.minifiedAddress = this.getMinifiedAddress();
-        console.log("search query", this.map_model.search_query);
+        console.log('search query', this.map_model.search_query);
       },
       (e) => {
-        console.log("onError: %s", e);
+        console.log('onError: %s', e);
       },
       () => {
-        console.log("onCompleted");
+        console.log('onCompleted');
       }
     );
   }
 
   getMinifiedAddress() {
-    let addressVal = "";
-    if (this.address) this.address.address_components.map((element, index) => {
-      if (index <= 1) {
-        addressVal += element.short_name + " ";
-      }
-    });
-    console.log("addressVal", addressVal);
+    let addressVal = '';
+    if (this.address)
+      this.address.address_components.map((element, index) => {
+        if (index <= 1) {
+          addressVal += element.short_name + ' ';
+        }
+      });
     return addressVal;
   }
 
@@ -210,16 +202,17 @@ export class MapsPage implements OnInit, AfterViewInit {
   }
 
   back() {
+    console.log('back');
+
     this.modalController.dismiss({
-      location: "",
+      dismissed: true,
     });
   }
 
   createIcon() {
     let _icon = {
-      path:
-        "M144 400c80 0 144 -60 144 -134c0 -104 -144 -282 -144 -282s-144 178 -144 282c0 74 64 134 144 134zM144 209c26 0 47 21 47 47s-21 47 -47 47s-47 -21 -47 -47s21 -47 47 -47z",
-      fillColor: "#45C261",
+      path: 'M144 400c80 0 144 -60 144 -134c0 -104 -144 -282 -144 -282s-144 178 -144 282c0 74 64 134 144 134zM144 209c26 0 47 21 47 47s-21 47 -47 47s-47 -21 -47 -47s21 -47 47 -47z',
+      fillColor: '#45C261',
       fillOpacity: 0.6,
       anchor: new google.maps.Point(0, 0),
       strokeWeight: 0,
@@ -230,7 +223,7 @@ export class MapsPage implements OnInit, AfterViewInit {
   }
 
   geolocateMe() {
-    this.utilService.show("Loading...");
+    this.utilService.show('Loading...');
     this.geolocation
       .getCurrentPosition({
         maximumAge: 1000,
@@ -238,11 +231,8 @@ export class MapsPage implements OnInit, AfterViewInit {
         enableHighAccuracy: true,
       })
       .then((position) => {
-        console.log("position", position);
-        let current_location = new google.maps.LatLng(
-          position.coords.latitude,
-          position.coords.longitude
-        );
+        console.log('position', position);
+        let current_location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         this.geocoder.geocode(
           {
             latLng: current_location,
@@ -280,7 +270,7 @@ export class MapsPage implements OnInit, AfterViewInit {
         this.utilService.hide();
       })
       .catch((error) => {
-        console.log("Error getting location", error);
+        console.log('Error getting location', error);
         this.utilService.hide();
       });
   }
@@ -297,17 +287,17 @@ export class MapsPage implements OnInit, AfterViewInit {
 
   searchPlacesPredictions(query) {
     let env = this;
-    if (query !== "") {
+    if (query !== '') {
       this.mapService.getPlacePredictions(query).subscribe(
         (places_predictions) => {
           console.log(places_predictions);
           env.map_model.search_places_predictions = places_predictions;
         },
         (e) => {
-          console.log("onError: %s", e);
+          console.log('onError: %s', e);
         },
         () => {
-          console.log("onCompleted");
+          console.log('onCompleted');
         }
       );
     } else {
@@ -329,10 +319,10 @@ export class MapsPage implements OnInit, AfterViewInit {
         // env.setOrigin(place_location);
       },
       (e) => {
-        console.log("onError: %s", e);
+        console.log('onError: %s', e);
       },
       () => {
-        console.log("onCompleted");
+        console.log('onCompleted');
       }
     );
   }
@@ -344,13 +334,8 @@ export class MapsPage implements OnInit, AfterViewInit {
     this.nativeGeocoder
       .forwardGeocode(event.target.value, options)
       .then((result: NativeGeocoderResult[]) => {
-        let location = new google.maps.LatLng(
-          result[0].latitude,
-          result[0].longitude
-        );
-        this.map.setCenter(
-          new google.maps.LatLng(result[0].latitude, result[0].longitude)
-        );
+        let location = new google.maps.LatLng(result[0].latitude, result[0].longitude);
+        this.map.setCenter(new google.maps.LatLng(result[0].latitude, result[0].longitude));
         this.addMarker(location);
       })
       .catch((error: any) => console.log(error));
@@ -358,20 +343,13 @@ export class MapsPage implements OnInit, AfterViewInit {
   getLocation() {
     this.utilService.show();
     this.platform.ready().then(() => {
-      if (this.platform.is("android")) {
-        this.androidPermissions
-          .checkPermission(
-            this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION
-          )
-          .then(
-            (result) => console.log("Has permission?", result.hasPermission),
-            (err) =>
-              this.androidPermissions.requestPermission(
-                this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION
-              )
-          );
+      if (this.platform.is('android')) {
+        this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION).then(
+          (result) => console.log('Has permission?', result.hasPermission),
+          (err) => this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION)
+        );
         this.grantRequest();
-      } else if (this.platform.is("ios")) {
+      } else if (this.platform.is('ios')) {
         this.grantRequest();
       } else {
         this.geolocation
@@ -384,12 +362,7 @@ export class MapsPage implements OnInit, AfterViewInit {
             if (resp) {
               this.lat = resp.coords.latitude;
               this.lng = resp.coords.longitude;
-              if (!this.map)
-                this.loadmap(
-                  resp.coords.latitude,
-                  resp.coords.longitude,
-                  this.mapEle
-                );
+              if (!this.map) this.loadmap(resp.coords.latitude, resp.coords.longitude, this.mapEle);
               this.getAddress(this.lat, this.lng);
             }
             this.utilService.hide();
@@ -411,23 +384,10 @@ export class MapsPage implements OnInit, AfterViewInit {
               })
               .then((resp) => {
                 if (resp) {
-                  console.log("resp", resp);
-                  if (!this.map)
-                    this.loadmap(
-                      resp.coords.latitude,
-                      resp.coords.longitude,
-                      this.mapEle
-                    );
-                  const location = new google.maps.LatLng(
-                    resp.coords.latitude,
-                    resp.coords.longitude
-                  );
-                  this.map.setCenter(
-                    new google.maps.LatLng(
-                      resp.coords.latitude,
-                      resp.coords.longitude
-                    )
-                  );
+                  console.log('resp', resp);
+                  if (!this.map) this.loadmap(resp.coords.latitude, resp.coords.longitude, this.mapEle);
+                  const location = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
+                  this.map.setCenter(new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude));
                   this.addMarker(location);
                   this.getAddress(resp.coords.latitude, resp.coords.longitude);
                 }
@@ -442,13 +402,8 @@ export class MapsPage implements OnInit, AfterViewInit {
               })
               .then((resp) => {
                 if (resp) {
-                  console.log("ress,", resp);
-                  if (!this.map)
-                    this.loadmap(
-                      resp.coords.latitude,
-                      resp.coords.longitude,
-                      this.mapEle
-                    );
+                  console.log('ress,', resp);
+                  if (!this.map) this.loadmap(resp.coords.latitude, resp.coords.longitude, this.mapEle);
                   this.getAddress(resp.coords.latitude, resp.coords.longitude);
                 }
               });
@@ -463,12 +418,13 @@ export class MapsPage implements OnInit, AfterViewInit {
         if (!this.map) this.loadmap(0, 0, this.mapEle);
       });
   }
+
   loadmap(lat, lng, mapElement) {
     const location = new google.maps.LatLng(lat, lng);
     const style = [
       {
-        featureType: "all",
-        elementType: "all",
+        featureType: 'all',
+        elementType: 'all',
         stylers: [{ saturation: -100 }],
       },
     ];
@@ -482,32 +438,34 @@ export class MapsPage implements OnInit, AfterViewInit {
       center: location,
       mapTypeControl: false,
       mapTypeControlOptions: {
-        mapTypeIds: [google.maps.MapTypeId.ROADMAP, "fire5"],
+        mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'fire5'],
       },
     };
     this.map = new google.maps.Map(mapElement.nativeElement, mapOptions);
-    var mapType = new google.maps.StyledMapType(style, { name: "Grayscale" });
-    this.map.mapTypes.set("fire5", mapType);
-    this.map.setMapTypeId("fire5");
+    var mapType = new google.maps.StyledMapType(style, { name: 'Grayscale' });
+    this.map.mapTypes.set('fire5', mapType);
+    this.map.setMapTypeId('fire5');
     this.map.setCenter(new google.maps.LatLng(lat, lng));
     this.addMarker(location);
   }
+
   getAddress(lat, lng) {
     const geocoder = new google.maps.Geocoder();
     const location = new google.maps.LatLng(lat, lng);
     geocoder.geocode({ location: location }, (results, status) => {
       console.log(results);
-      this.geoEncodePlace(results[0])
+      this.geoEncodePlace(results[0]);
       this.address = results[0];
       this.lat = lat;
       this.lng = lng;
     });
   }
+
   addMarker(location) {
     if (this.marker) this.marker.setMap(null);
-    console.log("location =>", location);
+    console.log('location =>', location);
     const icon = {
-      url: "assets/imgs/pin.png",
+      url: 'assets/imgs/pin.png',
       scaledSize: new google.maps.Size(50, 50), // scaled size
     };
     this.marker = new google.maps.Marker({
@@ -517,37 +475,37 @@ export class MapsPage implements OnInit, AfterViewInit {
       draggable: true,
       animation: google.maps.Animation.DROP,
     });
-    google.maps.event.addListener(this.marker, "addfeature", () => {
+    google.maps.event.addListener(this.marker, 'addfeature', () => {
       debugger;
       console.log(this.marker);
       this.getDragAddress(this.marker);
     });
-    google.maps.event.addListener(this.marker, "dragend", () => {
+    google.maps.event.addListener(this.marker, 'dragend', () => {
       console.log(this.marker);
       this.getDragAddress(this.marker);
     });
   }
+
   getDragAddress(event) {
     const geocoder = new google.maps.Geocoder();
-    const location = new google.maps.LatLng(
-      event.position.lat(),
-      event.position.lng()
-    );
+    const location = new google.maps.LatLng(event.position.lat(), event.position.lng());
     geocoder.geocode({ location: location }, (results, status) => {
       console.log(results);
-      this.geoEncodePlace(results[0])
-      this.address = results[0]
+      this.geoEncodePlace(results[0]);
+      this.address = results[0];
       this.lat = event.position.lat();
       this.lng = event.position.lng();
     });
   }
+
   showAddressOptions() {
     this.isOptionHidden = !this.isOptionHidden;
   }
+
   addNewAddress() {
     if (!this.title || this.description == '') {
-      this.utilService.errorToast(this.utilService.getString('Please fill all fields.'));
-      return
+      this.utilService.errorToast(this.utilService.getString('الرجاء ملىء كافة المعلومات'));
+      return;
     }
     const uid = localStorage.getItem('uid');
     if (uid == null || uid == 'null') {
@@ -556,7 +514,7 @@ export class MapsPage implements OnInit, AfterViewInit {
         reload: false,
         login: true,
       });
-      return
+      return;
     }
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode(
@@ -583,12 +541,17 @@ export class MapsPage implements OnInit, AfterViewInit {
               this.utilService.hide();
               if (data && data.status === 200) {
                 this.utilService.publishNewAddress();
-                this.utilService.showToast('Address added', 'success', 'bottom');
+                this.utilService.showToast('تمت إضافة العنوان', 'success', 'bottom');
+                // localStorage.setItem('address', data.id);
+                console.log('added data address', data.data.id);
+
                 this.showAddressOptions();
                 this.modalController.dismiss({
                   location: param.address,
                   reload: true,
                 });
+                // this.modalController.dismiss(null, undefined, null);
+                if (this.fromHome) this.router.navigate(['tabs/home']);
               } else {
                 this.utilService.errorToast(this.utilService.getString('Something went wrong'));
               }

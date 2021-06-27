@@ -15,64 +15,75 @@ import * as moment from 'moment';
 import { CartService } from 'src/app/services/cart.service';
 
 @Component({
-  selector: 'app-offers',
-  templateUrl: './offers.page.html',
-  styleUrls: ['./offers.page.scss'],
+	selector: 'app-offers',
+	templateUrl: './offers.page.html',
+	styleUrls: ['./offers.page.scss'],
 })
 export class OffersPage implements OnInit {
-  dummy = Array(5);
-  list: any[] = [];
-  dummyList: any[] = [];
-  page = 1;
-  constructor(
-    public api: ApiService,
-    public util: UtilService,
-    private navCtrl: NavController,
-    public cart: CartService
-  ) {
-    this.getOffers();
-  }
+	dummy = Array(5);
+	list: any[] = [];
+	dummyList: any[] = [];
+	page = 1;
+	couponCode = '';
+	constructor(
+		public api: ApiService,
+		public util: UtilService,
+		private navCtrl: NavController,
+		public cart: CartService
+	) {
+		this.getOffers();
+	}
 
-  ngOnInit() {
-  }
+	ngOnInit() {}
 
-  getOffers() {
-    // this.dummy = Array(5);
-    this.api.get('offers').subscribe((data: any) => {
-      console.log(data);
-      this.dummy = [];
-      if (data && data.status === 200 && data.data && data.data.length) {
-        const info = data.data.filter(x => x.status === '1');
-        this.list = info;
-        this.dummyList = info;
-      }
-    }, error => {
-      console.log(error);
-      this.util.errorToast(this.util.getString('Something went wrong'));
-    });
-  }
+	getOffers() {
+		// this.dummy = Array(5);
+		this.api.get('offers').subscribe(
+			(data: any) => {
+				console.log(data);
+				this.dummy = [];
+				if (data && data.status === 200 && data.data && data.data.length) {
+					const info = data.data.filter((x) => x.status === '1');
+					this.list = info;
+					this.dummyList = info;
+				}
+			},
+			(error) => {
+				console.log(error);
+				this.util.errorToast(this.util.getString('Something went wrong'));
+			}
+		);
+	}
 
-  back() {
-    this.navCtrl.back();
-  }
+	back() {
+		this.navCtrl.back();
+	}
+	addCoupon() {}
 
-  selected(item) {
-    console.log(item);
-    const min = parseFloat(item.min);
-    if (this.cart.totalPrice >= min) {
-      this.cart.coupon = item;
-      this.util.publishCoupon(item);
-      this.back();
-    } else {
-      console.log('not valid with minimum amout', min);
-      this.util.showToast(this.util.getString('Sorry') + '\n' + this.util.getString('minimum cart value must be') + ' ' + min +
-        ' ' + this.util.getString('or equal'), 'danger', 'bottom');
-    }
+	selected(item) {
+		console.log(item);
+		const min = parseFloat(item.min);
+		if (this.cart.totalPrice >= min) {
+			this.cart.coupon = item;
+			this.util.publishCoupon(item);
+			this.back();
+		} else {
+			console.log('not valid with minimum amout', min);
+			this.util.showToast(
+				this.util.getString('Sorry') +
+					'\n' +
+					this.util.getString('minimum cart value must be') +
+					' ' +
+					min +
+					' ' +
+					this.util.getString('or equal'),
+				'danger',
+				'bottom'
+			);
+		}
+	}
 
-  }
-
-  getTime(time) {
-    return moment(time).format('LLLL');
-  }
-
+	getTime(time) {
+		return moment(time).format('LLLL');
+	}
 }
