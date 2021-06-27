@@ -47,6 +47,7 @@ export class CartPage implements OnInit {
   add(product, index) {
     if (this.cart.cart[index].quantiy > 0) {
       this.cart.cart[index].quantiy = this.cart.cart[index].quantiy + 1;
+      console.log('qty val', this.cart.cart[index].quantiy);
       this.cart.addQuantity(this.cart.cart[index].quantiy, product.id);
     }
   }

@@ -229,6 +229,10 @@ export class PaymentPage implements OnInit {
         time: moment().format('lll'),
       },
     ];
+    console.log('cart items');
+    console.log(this.cart.cart);
+    console.log('end cart');
+
     const param = {
       uid: localStorage.getItem('uid'),
       store_id: storeId.join(),

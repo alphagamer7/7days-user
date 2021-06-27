@@ -1,4 +1,4 @@
-import { Component, ElementRef, NgZone, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, NgZone, OnInit, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { UtilService } from 'src/app/services/util.service';
@@ -17,6 +17,7 @@ declare var google;
 })
 export class MapsPage implements OnInit, AfterViewInit {
   @ViewChild('mapSe', { static: true }) mapEle: ElementRef;
+  @Input() fromHome: boolean;
   map: any;
   map_model: any;
   geocoder: any;
@@ -27,6 +28,7 @@ export class MapsPage implements OnInit, AfterViewInit {
   isOptionHidden: boolean = true;
   title: any;
   description: any = '';
+  minifiedAddressVal;
   constructor(
     // private geolocationProvider: Geolocation,
     public geolocation: Geolocation,
@@ -75,9 +77,8 @@ export class MapsPage implements OnInit, AfterViewInit {
   }
   ngOnInit() {
     console.log('logged');
-    // setTimeout(() => {
-    // this.getCurrentLocation();
-    // }, 1000);
+    console.log('fromHome', this.fromHome);
+
     this.getLocation();
     document.getElementById('map').style.height = this.platform.height() - 62 + 'px';
   }
@@ -193,7 +194,6 @@ export class MapsPage implements OnInit, AfterViewInit {
           addressVal += element.short_name + ' ';
         }
       });
-    console.log('addressVal', addressVal);
     return addressVal;
   }
 
@@ -202,15 +202,16 @@ export class MapsPage implements OnInit, AfterViewInit {
   }
 
   back() {
+    console.log('back');
+
     this.modalController.dismiss({
-      location: '',
+      dismissed: true,
     });
   }
 
   createIcon() {
     let _icon = {
-      path:
-        'M144 400c80 0 144 -60 144 -134c0 -104 -144 -282 -144 -282s-144 178 -144 282c0 74 64 134 144 134zM144 209c26 0 47 21 47 47s-21 47 -47 47s-47 -21 -47 -47s21 -47 47 -47z',
+      path: 'M144 400c80 0 144 -60 144 -134c0 -104 -144 -282 -144 -282s-144 178 -144 282c0 74 64 134 144 134zM144 209c26 0 47 21 47 47s-21 47 -47 47s-47 -21 -47 -47s21 -47 47 -47z',
       fillColor: '#45C261',
       fillOpacity: 0.6,
       anchor: new google.maps.Point(0, 0),
@@ -417,6 +418,7 @@ export class MapsPage implements OnInit, AfterViewInit {
         if (!this.map) this.loadmap(0, 0, this.mapEle);
       });
   }
+
   loadmap(lat, lng, mapElement) {
     const location = new google.maps.LatLng(lat, lng);
     const style = [
@@ -446,6 +448,7 @@ export class MapsPage implements OnInit, AfterViewInit {
     this.map.setCenter(new google.maps.LatLng(lat, lng));
     this.addMarker(location);
   }
+
   getAddress(lat, lng) {
     const geocoder = new google.maps.Geocoder();
     const location = new google.maps.LatLng(lat, lng);
@@ -457,6 +460,7 @@ export class MapsPage implements OnInit, AfterViewInit {
       this.lng = lng;
     });
   }
+
   addMarker(location) {
     if (this.marker) this.marker.setMap(null);
     console.log('location =>', location);
@@ -481,6 +485,7 @@ export class MapsPage implements OnInit, AfterViewInit {
       this.getDragAddress(this.marker);
     });
   }
+
   getDragAddress(event) {
     const geocoder = new google.maps.Geocoder();
     const location = new google.maps.LatLng(event.position.lat(), event.position.lng());
@@ -492,9 +497,11 @@ export class MapsPage implements OnInit, AfterViewInit {
       this.lng = event.position.lng();
     });
   }
+
   showAddressOptions() {
     this.isOptionHidden = !this.isOptionHidden;
   }
+
   addNewAddress() {
     if (!this.title || this.description == '') {
       this.utilService.errorToast(this.utilService.getString('الرجاء ملىء كافة المعلومات'));
@@ -534,12 +541,17 @@ export class MapsPage implements OnInit, AfterViewInit {
               this.utilService.hide();
               if (data && data.status === 200) {
                 this.utilService.publishNewAddress();
-                this.utilService.showToast('Address added', 'success', 'bottom');
+                this.utilService.showToast('تمت إضافة العنوان', 'success', 'bottom');
+                // localStorage.setItem('address', data.id);
+                console.log('added data address', data.data.id);
+
                 this.showAddressOptions();
                 this.modalController.dismiss({
                   location: param.address,
                   reload: true,
                 });
+                // this.modalController.dismiss(null, undefined, null);
+                if (this.fromHome) this.router.navigate(['tabs/home']);
               } else {
                 this.utilService.errorToast(this.utilService.getString('Something went wrong'));
               }

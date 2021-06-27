@@ -7,7 +7,7 @@
   terms found in the Website https://initappz.com/license
   Copyright and Good Faith Purchasers © 2020-present initappz.
 */
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { UtilService } from '../../services/util.service';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
@@ -72,7 +72,8 @@ export class HomePage implements OnInit {
     private iab: InAppBrowser,
     private alertCtrl: AlertController,
     private modalController: ModalController,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private ngZone: NgZone
   ) {
     this.dummyCates = Array(5);
     this.dummyBanners = Array(5);
@@ -93,7 +94,7 @@ export class HomePage implements OnInit {
         console.log('alredy poped');
       } else {
         console.log('open pop');
-        //this.getPopup();
+        this.getPopup();
       }
     }
     this.util.subscribeCity().subscribe((data) => {
@@ -118,7 +119,7 @@ export class HomePage implements OnInit {
     });
   }
 
-  /* 	getPopup() {
+  getPopup() {
 		this.api.get('popup').subscribe(
 			async (data: any) => {
 				console.log('popup message', data);
@@ -138,7 +139,7 @@ export class HomePage implements OnInit {
 				console.log(error);
 			}
 		);
-	} */
+	} 
 
   getInit() {
     this.util.show('أرجو الإنتظار');
@@ -176,6 +177,7 @@ export class HomePage implements OnInit {
           this.getBanners();
 
           this.topProducts = [];
+          // this.dummyProducts = [];
           this.dummyTopProducts = Array(5);
           this.api.post('products/getTopRated', param).subscribe(
             (data: any) => {
@@ -214,6 +216,9 @@ export class HomePage implements OnInit {
                   this.topProducts.push(element);
                 });
               }
+              this.ngZone.run(() => {
+                console.log('ngzoned');
+              });
             },
             (error) => {
               console.log(error);
@@ -222,61 +227,68 @@ export class HomePage implements OnInit {
             }
           );
 
-          this.api.post('products/getHome', param).subscribe(
+          // this.dummyTopProducts = [];
+          // this.api.post('products/getHome', param).subscribe(
+          //   (data: any) => {
+          //     console.log('home products', data);
+          //     this.dummyTopProducts = [];
+          //     if (data && data.status === 200 && data.data && data.data.length) {
+          //       data.data.forEach((element) => {
+          //         if (element.variations && element.size === '1' && element.variations !== '') {
+          //           if (
+          //             ((x) => {
+          //               try {
+          //                 JSON.parse(x);
+          //                 return true;
+          //               } catch (e) {
+          //                 return false;
+          //               }
+          //             })(element.variations)
+          //           ) {
+          //             element.variations = JSON.parse(element.variations);
+          //             element['variant'] = 0;
+          //           } else {
+          //             element.variations = [];
+          //             element['variant'] = 1;
+          //           }
+          //         } else {
+          //           element.variations = [];
+          //           element['variant'] = 1;
+          //         }
+          //         if (this.cart.itemId.includes(element.id)) {
+          //           const index = this.cart.cart.filter((x) => x.id === element.id);
+          //           element['quantiy'] = index[0].quantiy;
+          //         } else {
+          //           element['quantiy'] = 0;
+          //         }
+          //         this.topProducts.push(element);
+          //       });
+          //     }
+          //   },
+          //   (error) => {
+          //     this.dummyTopProducts = [];
+          //     console.log(error);
+          //     this.util.hide();
+          //   }
+          // );
+
+          this.api.post('products/getProductWithCity', param).subscribe(
             (data: any) => {
-              console.log('home products', data);
-              this.dummyTopProducts = [];
+              console.log('getProductWithCity', data);
               if (data && data.status === 200 && data.data && data.data.length) {
-                data.data.forEach((element) => {
-                  if (element.variations && element.size === '1' && element.variations !== '') {
-                    if (
-                      ((x) => {
-                        try {
-                          JSON.parse(x);
-                          return true;
-                        } catch (e) {
-                          return false;
-                        }
-                      })(element.variations)
-                    ) {
-                      element.variations = JSON.parse(element.variations);
-                      element['variant'] = 0;
-                    } else {
-                      element.variations = [];
-                      element['variant'] = 1;
-                    }
-                  } else {
-                    element.variations = [];
-                    element['variant'] = 1;
-                  }
-                  if (this.cart.itemId.includes(element.id)) {
-                    const index = this.cart.cart.filter((x) => x.id === element.id);
-                    element['quantiy'] = index[0].quantiy;
-                  } else {
-                    element['quantiy'] = 0;
-                  }
-                  this.topProducts.push(element);
+                this.dummyProducts = data.data;
+                this.ngZone.run(() => {
+                  console.log('ngzoned');
                 });
+              } else {
+                this.dummyProducts = [];
               }
             },
             (error) => {
-              this.dummyTopProducts = [];
               console.log(error);
-              this.util.hide();
+              this.dummyProducts = [];
             }
           );
-
-          // this.api.post('products/getProductWithCity', param).subscribe((data: any) => {
-          //   console.log('getProductWithCity', data);
-          //   if (data && data.status === 200 && data.data && data.data.length) {
-          //     this.dummyProducts = data.data;
-          //   } else {
-          //     this.dummyProducts = []
-          //   }
-          // }, error => {
-          //   console.log(error);
-          //   this.dummyProducts = []
-          // });
           this.util.hide();
         } else {
           this.haveStores = false;
@@ -392,21 +404,30 @@ export class HomePage implements OnInit {
   }
 
   async selectAddress() {
-    const modal = await this.modalController.create({
-      component: MapsPage,
-      cssClass: 'my-custom-class',
-    });
-    await modal.present();
-    debugger;
-    const { data } = await modal.onWillDismiss();
-    console.log(data);
-    if (data && data.location) {
-      this.address = data.location;
-    }
-    if (data && data.reload) {
-      this.getAddress();
-    }
-    if (data && data.login == true) {
+    const uid = localStorage.getItem('uid');
+    if (uid && uid != null && uid !== 'null') {
+      if (this.myaddress && this.myaddress.length > 0) {
+        this.util.showToast('تمت إضافة الموقع بالفعل', 'danger', 'bottom');
+      } else {
+        const modal = await this.modalController.create({
+          component: MapsPage,
+          cssClass: 'my-custom-class',
+          componentProps: {
+            fromHome: true,
+          },
+        });
+        await modal.present();
+        // debugger;
+        const { data } = await modal.onWillDismiss();
+        console.log(data);
+        if (data && data.location) {
+          this.address = data.location;
+        }
+        if (data && data.reload) {
+          this.getAddress();
+        }
+      }
+    } else {
       this.router.navigate(['/login']);
     }
   }
@@ -443,6 +464,9 @@ export class HomePage implements OnInit {
               }
             });
         }
+        this.ngZone.run(() => {
+          console.log('ngzoneddd');
+        });
 
         this.api.get('subcate').subscribe(
           (subCates: any) => {
@@ -459,6 +483,9 @@ export class HomePage implements OnInit {
               // console.log('=>>', this.categories);
               this.categories = cates;
             }
+            this.ngZone.run(() => {
+              console.log('ngzoneddd');
+            });
           },
           (error) => {
             console.log(error);
@@ -725,39 +752,57 @@ export class HomePage implements OnInit {
     }
   }
   getAddress() {
+    const uid = localStorage.getItem('uid');
     const param = {
       id: localStorage.getItem('uid'),
     };
+
     this.myaddress = [];
-    this.api.post('address/getByUid', param).subscribe(
-      (data: any) => {
-        console.log(data);
-        if (data && data.status === 200 && data.data.length) {
-          this.myaddress = data.data;
-        }
-        let selectedAddress: any = localStorage.getItem('address');
-        console.log('selectedAddress', selectedAddress);
+    if (uid) {
+      this.api.post('address/getByUid', param).subscribe(
+        (data: any) => {
+          console.log(data);
+          if (data && data.status === 200 && data.data.length) {
+            this.myaddress = data.data;
+          }
+          console.log('this.myaddress', this.myaddress);
 
-        if (selectedAddress) {
-          console.log(this.myaddress);
-          selectedAddress = this.myaddress.filter((item) => item.id == selectedAddress);
-          console.log('selectedAddress--', selectedAddress);
+          let selectedAddress: any = localStorage.getItem('address');
+          console.log('selectedAddress', selectedAddress);
 
-          this.optionSelected = selectedAddress[0].id;
-          this.cart.deliveryAddress = selectedAddress[0];
-          // this.optionSelected =
+          if (selectedAddress) {
+            console.log(this.myaddress);
+            selectedAddress = this.myaddress.filter((item) => item.id == selectedAddress);
+            console.log('selectedAddress--', selectedAddress);
+
+            this.optionSelected = selectedAddress[0].id;
+            this.cart.deliveryAddress = selectedAddress[0];
+            // this.optionSelected =
+          } else {
+            if (this.myaddress && this.myaddress.length) {
+              selectedAddress = this.myaddress[0];
+              console.log('selectedAddress', selectedAddress);
+
+              this.optionSelected = selectedAddress.id;
+              localStorage.setItem('address', selectedAddress.id);
+              this.cart.deliveryAddress = selectedAddress;
+            }
+            // if (this.myaddress) {
+            // }
+          }
+          // localStorage.setItem('address', JSON.stringify(addr.id));
+        },
+        (error) => {
+          console.log(error);
+          this.util.errorToast(this.util.getString('Something went wrong'));
         }
-        // localStorage.setItem('address', JSON.stringify(addr.id));
-      },
-      (error) => {
-        console.log(error);
-        this.util.errorToast(this.util.getString('Something went wrong'));
-      }
-    );
+      );
+    }
   }
   getAddressList() {
     this.isAddressOpen = !this.isAddressOpen;
   }
+
   setAddressList(addr) {
     console.log(addr);
 

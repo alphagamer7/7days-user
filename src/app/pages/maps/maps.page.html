@@ -5,11 +5,6 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button (click)="selectAddress()">
-        <ion-label>حفظ</ion-label>
-      </ion-button>
-    </ion-buttons>
     <ion-title> {{'التوصيل إلى المنزل'}} </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -43,7 +38,7 @@
   <div class="bottom-container">
     <div class="address-cntr">
       <div>
-        <h3>{{getMinifiedAddress()}}</h3>
+        <h3>{{map_model.minifiedAddress}}</h3>
         <p>{{map_model.search_query}}</p>
       </div>
     </div>
@@ -68,18 +63,6 @@
               <ion-label slot="end">العمل</ion-label>
               <ion-icon name="build-outline" slot="end"></ion-icon>
               <ion-radio slot="end" value="العمل"></ion-radio>
-            </ion-item>
-
-            <ion-item>
-              <ion-label slot="end">الاستراحة</ion-label>
-              <ion-icon slot="end" name="wine-outline"></ion-icon>
-              <ion-radio slot="end" value="الاستراحة"></ion-radio>
-            </ion-item>
-
-            <ion-item>
-              <ion-label slot="end">المخيم</ion-label>
-              <ion-icon name="earth-outline" slot="end"></ion-icon>
-              <ion-radio slot="end" value="المخيم"></ion-radio>
             </ion-item>
           </ion-radio-group>
         </ion-list>

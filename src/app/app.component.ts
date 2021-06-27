@@ -266,6 +266,7 @@ export class AppComponent {
       }
 
       this.platform.backButton.subscribe(async () => {
+        console.log('test');
         console.log('Back Button --------------->>>', this.router.url, 'ad', this.router.isActive('/tabs/', true));
 
         if (
@@ -286,7 +287,7 @@ export class AppComponent {
 
   logout() {
     localStorage.clear();
-    this.navCtrl.navigateRoot(['/login']);
+    this.navCtrl.navigateRoot(['/tabs/home']);
   }
 
   getTranslate(str) {
